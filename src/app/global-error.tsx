@@ -9,6 +9,7 @@ export default function GlobalError({
 }) {
   return (
     <html>
+      <head></head>
       <body>
         <div style={{ padding: "20px", fontFamily: "system-ui" }}>
           <h2>Something went wrong!</h2>

@@ -6,8 +6,7 @@ import { DashboardClient } from "@/components/dashboard/dashboard-client";
 import { startOfWeek, endOfWeek, addWeeks, isAfter } from "date-fns";
 
 // Server-side caching: revalidate every 1 hour (3600 seconds)
-// Temporarily set to 0 for development to see changes immediately
-export const revalidate = 0;
+export const revalidate = 3600;
 
 export default async function DashboardPage() {
   const session = await auth();

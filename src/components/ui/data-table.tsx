@@ -61,6 +61,9 @@ export function DataTable<T extends Record<string, any>>({
   
   // Load column visibility from localStorage after mount (client-side only)
   React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
     setIsMounted(true);
     const saved = localStorage.getItem(storageKey);
     if (saved) {
@@ -75,7 +78,7 @@ export function DataTable<T extends Record<string, any>>({
   
   // Save column visibility to localStorage whenever it changes (client-side only)
   React.useEffect(() => {
-    if (isMounted) {
+    if (isMounted && typeof window !== "undefined") {
       localStorage.setItem(storageKey, JSON.stringify(columnVisibility));
     }
   }, [columnVisibility, storageKey, isMounted]);

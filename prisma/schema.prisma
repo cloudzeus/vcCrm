@@ -1,0 +1,999 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPERADMIN
+  OWNER
+  MANAGER
+  INFLUENCER
+  CLIENT
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum CampaignInfluencerStatus {
+  INVITED
+  ACCEPTED
+  REJECTED
+  COMPLETED
+}
+
+enum PlatformType {
+  INSTAGRAM
+  TIKTOK
+  YOUTUBE
+  OTHER
+}
+
+enum ContentType {
+  POST
+  STORY
+  REEL
+  SHORT
+  VIDEO
+}
+
+enum PostStatus {
+  PLANNED
+  DRAFT
+  APPROVED
+  POSTED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+}
+
+enum SubscriptionPlan {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+/// =====================
+/// CRM STRUCTURE FOR LEADS / OPPORTUNITIES / OFFERS
+/// =====================
+
+/// BUSINESS LOGIC OVERVIEW
+/// -----------------------
+/// - Company: Your customer/account organization. Can have many contacts and CRM records.
+/// - Contact: A specific person (employee, stakeholder, etc.). Belongs to a company. Can participate in multiple CRM records.
+/// - CrmRecord: The main CRM entity—represents a process (lead, opportunity, offer, deal). Tied to a company and multiple contacts. Status field drives pipeline stage (LEAD, OPPORTUNITY etc.).
+/// - CrmRecordContact: Join table mapping many contacts to each CRM record, with optional "role" per deal.
+/// -----------------------
+
+enum CrmStatus {
+  LEAD
+  QUALIFIED
+  CONTACTED
+  NEEDS_ANALYSIS
+  OPPORTUNITY
+  NEGOTIATION
+  OFFER_SENT
+  OFFER_ACCEPTED
+  WON
+  LOST
+  CUSTOMER
+}
+
+enum Country {
+  AFGHANISTAN
+  ALBANIA
+  ALGERIA
+  ANDORRA
+  ANGOLA
+  ANTIGUA_AND_BARBUDA
+  ARGENTINA
+  ARMENIA
+  AUSTRALIA
+  AUSTRIA
+  AZERBAIJAN
+  BAHAMAS
+  BAHRAIN
+  BANGLADESH
+  BARBADOS
+  BELARUS
+  BELGIUM
+  BELIZE
+  BENIN
+  BHUTAN
+  BOLIVIA
+  BOSNIA_AND_HERZEGOVINA
+  BOTSWANA
+  BRAZIL
+  BRUNEI
+  BULGARIA
+  BURKINA_FASO
+  BURUNDI
+  CABO_VERDE
+  CAMBODIA
+  CAMEROON
+  CANADA
+  CENTRAL_AFRICAN_REPUBLIC
+  CHAD
+  CHILE
+  CHINA
+  COLOMBIA
+  COMOROS
+  CONGO
+  COSTA_RICA
+  CROATIA
+  CUBA
+  CYPRUS
+  CZECH_REPUBLIC
+  DENMARK
+  DJIBOUTI
+  DOMINICA
+  DOMINICAN_REPUBLIC
+  ECUADOR
+  EGYPT
+  EL_SALVADOR
+  EQUATORIAL_GUINEA
+  ERITREA
+  ESTONIA
+  ESWATINI
+  ETHIOPIA
+  FIJI
+  FINLAND
+  FRANCE
+  GABON
+  GAMBIA
+  GEORGIA
+  GERMANY
+  GHANA
+  GREECE
+  GRENADA
+  GUATEMALA
+  GUINEA
+  GUINEA_BISSAU
+  GUYANA
+  HAITI
+  HONDURAS
+  HUNGARY
+  ICELAND
+  INDIA
+  INDONESIA
+  IRAN
+  IRAQ
+  IRELAND
+  ISRAEL
+  ITALY
+  JAMAICA
+  JAPAN
+  JORDAN
+  KAZAKHSTAN
+  KENYA
+  KIRIBATI
+  KOSOVO
+  KUWAIT
+  KYRGYZSTAN
+  LAOS
+  LATVIA
+  LEBANON
+  LESOTHO
+  LIBERIA
+  LIBYA
+  LIECHTENSTEIN
+  LITHUANIA
+  LUXEMBOURG
+  MADAGASCAR
+  MALAWI
+  MALAYSIA
+  MALDIVES
+  MALI
+  MALTA
+  MARSHALL_ISLANDS
+  MAURITANIA
+  MAURITIUS
+  MEXICO
+  MICRONESIA
+  MOLDOVA
+  MONACO
+  MONGOLIA
+  MONTENEGRO
+  MOROCCO
+  MOZAMBIQUE
+  MYANMAR
+  NAMIBIA
+  NAURU
+  NEPAL
+  NETHERLANDS
+  NEW_ZEALAND
+  NICARAGUA
+  NIGER
+  NIGERIA
+  NORTH_KOREA
+  NORTH_MACEDONIA
+  NORWAY
+  OMAN
+  PAKISTAN
+  PALAU
+  PALESTINE
+  PANAMA
+  PAPUA_NEW_GUINEA
+  PARAGUAY
+  PERU
+  PHILIPPINES
+  POLAND
+  PORTUGAL
+  QATAR
+  ROMANIA
+  RUSSIA
+  RWANDA
+  SAINT_KITTS_AND_NEVIS
+  SAINT_LUCIA
+  SAINT_VINCENT_AND_THE_GRENADINES
+  SAMOA
+  SAN_MARINO
+  SAO_TOME_AND_PRINCIPE
+  SAUDI_ARABIA
+  SENEGAL
+  SERBIA
+  SEYCHELLES
+  SIERRA_LEONE
+  SINGAPORE
+  SLOVAKIA
+  SLOVENIA
+  SOLOMON_ISLANDS
+  SOMALIA
+  SOUTH_AFRICA
+  SOUTH_KOREA
+  SOUTH_SUDAN
+  SPAIN
+  SRI_LANKA
+  SUDAN
+  SURINAME
+  SWEDEN
+  SWITZERLAND
+  SYRIA
+  TAIWAN
+  TAJIKISTAN
+  TANZANIA
+  THAILAND
+  TIMOR_LESTE
+  TOGO
+  TONGA
+  TRINIDAD_AND_TOBAGO
+  TUNISIA
+  TURKEY
+  TURKMENISTAN
+  TUVALU
+  UGANDA
+  UKRAINE
+  UNITED_ARAB_EMIRATES
+  UNITED_KINGDOM
+  UNITED_STATES
+  URUGUAY
+  UZBEKISTAN
+  VANUATU
+  VATICAN_CITY
+  VENEZUELA
+  VIETNAM
+  YEMEN
+  ZAMBIA
+  ZIMBABWE
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String    @unique
+  emailVerified  DateTime?
+  passwordHash   String?
+  image          String?
+  role           UserRole  @default(INFLUENCER)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Auth.js relations
+  accounts       Account[]
+  sessions       Session[]
+  
+  // App relations
+  influencerProfile InfluencerProfile?
+  uploadedMedia  MediaAsset[]
+  uploadedAttachments OpportunityAttachment[]
+  createdCampaigns Campaign[] @relation("CampaignCreator")
+  createdPosts   PostSchedule[]
+  capturedMetrics MetricSnapshot[]
+  assignedTasks  OpportunityTask[]
+
+  @@index([organizationId])
+  @@index([email])
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  plan      SubscriptionPlan @default(FREE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users     User[]
+  influencers InfluencerProfile[]
+  brands    Brand[]
+  campaigns Campaign[]
+  mediaAssets MediaAsset[]
+  inviteTokens InviteToken[]
+  companies Company[]
+  suppliers Supplier[]
+  contacts Contact[]
+  crmRecords CrmRecord[]
+  opportunityAttachments OpportunityAttachment[]
+  dataSyncs DataSync[]
+
+  @@index([slug])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model InfluencerProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  organizationId   String
+  stageName         String?
+  bio               String?  @db.Text
+  platforms         Json?    // Array of platform objects with metrics
+  defaultCurrency   String   @default("EUR")
+  managerSharePercent Float?  @default(0)
+  
+  // Detailed profile information
+  fullName          String?
+  dateOfBirth       DateTime?
+  location          String?  // City, Country
+  address           String?  @db.Text
+  phone             String?
+  email             String?  // Contact email (can differ from user email)
+  
+  // Social media profiles
+  instagramUrl      String?
+  tiktokUrl         String?
+  youtubeUrl        String?
+  twitterUrl        String?
+  facebookUrl       String?
+  linkedinUrl       String?
+  otherSocialUrls   Json?    // Array of {platform: string, url: string}
+  
+  // Portfolio and profile details
+  portfolioUrl      String?
+  portfolioFiles   Json?     // Array of portfolio file URLs
+  profileImageUrl   String?
+  coverImageUrl     String?
+  
+  // Professional details
+  niche             String?  // e.g., "Fashion", "Tech", "Food"
+  languages         Json?     // Array of languages spoken
+  collaborationTypes Json?    // Array of collaboration types they accept
+  rateCard          Json?     // Pricing for different content types
+  availability      String?   // e.g., "Available", "Limited", "Unavailable"
+  notes             String?   @db.Text // Internal notes for proposing to brands
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  campaignAssignments CampaignInfluencer[]
+  assignedTasks     CampaignTask[]
+  posts             PostSchedule[]
+  mediaAssets       MediaAsset[]
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([niche])
+}
+
+model Brand {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  website        String?
+  logoUrl        String?   // Brand logo image URL
+  notes          String?   @db.Text
+  
+  // Address details
+  address        String?   @db.Text
+  city           String?
+  state          String?
+  country        String?
+  postalCode     String?
+  
+  // Social media
+  instagramUrl  String?
+  facebookUrl   String?
+  twitterUrl    String?
+  linkedinUrl   String?
+  youtubeUrl    String?
+  tiktokUrl     String?
+  otherSocialUrls Json?    // Array of {platform: string, url: string}
+  
+  // Brand files and media kit
+  brandFiles     Json?     // Array of file objects {name, url, type}
+  mediaKit       Json?     // Media kit files, guidelines, etc.
+  
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  campaigns      Campaign[]
+  contacts       BrandContact[]
+  products       BrandProduct[]
+
+  @@index([organizationId])
+  @@index([country])
+}
+
+model BrandContact {
+  id          String   @id @default(cuid())
+  brandId     String
+  name        String
+  email       String?
+  phone       String?
+  role        String?  // e.g., "Marketing Manager", "Brand Director"
+  department  String?  // e.g., "Marketing", "Sales"
+  isPrimary   Boolean  @default(false)
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  brand       Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@index([brandId])
+  @@index([isPrimary])
+}
+
+model BrandProduct {
+  id          String   @id @default(cuid())
+  brandId     String
+  name        String
+  description String?  @db.Text
+  category    String?  // e.g., "Product", "Service", "Event"
+  imageUrl    String?
+  price       Float?
+  currency    String?  @default("EUR")
+  isActive    Boolean  @default(true)
+  tags        Json?     // Array of tags for filtering
+  metadata    Json?     // Additional product-specific data
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  brand       Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@index([brandId])
+  @@index([category])
+  @@index([isActive])
+}
+
+model Campaign {
+  id          String           @id @default(cuid())
+  organizationId String
+  brandId     String
+  createdById String?
+  name        String
+  description String?          @db.Text
+  status      CampaignStatus   @default(DRAFT)
+  startDate   DateTime?
+  endDate     DateTime?
+  totalBudget Float?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand        @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  creator      User?        @relation("CampaignCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  influencers  CampaignInfluencer[]
+  tasks        CampaignTask[]
+  posts        PostSchedule[]
+  mediaAssets  MediaAsset[]
+
+  @@index([organizationId])
+  @@index([brandId])
+  @@index([status])
+}
+
+model CampaignTask {
+  id          String       @id @default(cuid())
+  campaignId  String
+  assignedToInfluencerId String?
+  title       String
+  description String?      @db.Text
+  status      TaskStatus   @default(TODO)
+  priority    Int          @default(0) // 0 = low, 1 = medium, 2 = high
+  dueDate     DateTime?
+  scheduledAt DateTime?
+  order       Int          @default(0) // For Kanban ordering
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  campaign    Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  assignedTo  InfluencerProfile? @relation(fields: [assignedToInfluencerId], references: [id], onDelete: SetNull)
+
+  @@index([campaignId])
+  @@index([assignedToInfluencerId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model CampaignInfluencer {
+  id          String                   @id @default(cuid())
+  campaignId  String
+  influencerId String
+  fee         Float
+  currency    String                   @default("USD")
+  status      CampaignInfluencerStatus @default(INVITED)
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+
+  campaign    Campaign         @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  influencer  InfluencerProfile @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, influencerId])
+  @@index([campaignId])
+  @@index([influencerId])
+  @@index([status])
+}
+
+model PostSchedule {
+  id              String       @id @default(cuid())
+  campaignId      String
+  influencerId    String
+  platform        PlatformType
+  contentType     ContentType
+  scheduledAt     DateTime
+  durationMinutes Int?
+  status          PostStatus   @default(PLANNED)
+  caption         String?      @db.Text
+  notes           String?      @db.Text
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  createdById     String?
+
+  campaign        Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  influencer      InfluencerProfile @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  creator         User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  mediaAssets     MediaAsset[]
+  metricSnapshots MetricSnapshot[]
+
+  @@index([campaignId])
+  @@index([influencerId])
+  @@index([scheduledAt])
+  @@index([status])
+  @@index([platform])
+}
+
+model MediaAsset {
+  id            String    @id @default(cuid())
+  organizationId String
+  uploadedByUserId String
+  campaignId    String?
+  influencerId  String?
+  postScheduleId String?
+  filename      String
+  url           String    @db.Text
+  mimeType      String
+  sizeBytes     Int
+  isPrimary     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  organization  Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploader      User         @relation(fields: [uploadedByUserId], references: [id], onDelete: Cascade)
+  campaign      Campaign?    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  influencer    InfluencerProfile? @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  postSchedule  PostSchedule? @relation(fields: [postScheduleId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([campaignId])
+  @@index([influencerId])
+  @@index([postScheduleId])
+}
+
+model MetricSnapshot {
+  id              String       @id @default(cuid())
+  postScheduleId  String
+  capturedByUserId String?
+  capturedAt      DateTime     @default(now())
+  impressions     Int?         @default(0)
+  reach           Int?         @default(0)
+  likes           Int?         @default(0)
+  comments        Int?         @default(0)
+  saves           Int?         @default(0)
+  clicks          Int?         @default(0)
+  shares          Int?         @default(0)
+  estimatedRevenue Float?
+
+  postSchedule    PostSchedule @relation(fields: [postScheduleId], references: [id], onDelete: Cascade)
+  capturedBy      User?        @relation(fields: [capturedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([postScheduleId])
+  @@index([capturedAt])
+}
+
+model InviteToken {
+  id             String   @id @default(cuid())
+  organizationId String
+  email          String
+  token          String   @unique
+  role           UserRole
+  expiresAt      DateTime
+  usedAt         DateTime?
+  createdAt      DateTime @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([organizationId])
+  @@index([email])
+}
+
+model Company {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  vatNumber      String?
+  commercialTitle String?
+  address        String?   @db.Text
+  irsOffice      String?
+  city           String?
+  country        Country?
+  zip            String?
+  phone          String?
+  email          String?
+  logoUrl        String?   // Company logo uploaded to BunnyCDN
+  website        String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contacts       Contact[]
+  crmRecords     CrmRecord[]
+  opportunityTasks OpportunityTask[] // Tasks/questions associated with this company
+  attachments    OpportunityAttachment[] // Generic files attached to this company
+
+  @@index([organizationId])
+  @@index([country])
+  @@index([vatNumber])
+}
+
+model Supplier {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  vatNumber      String?
+  commercialTitle String?
+  address        String?   @db.Text
+  irsOffice      String?
+  city           String?
+  country        Country?
+  zip            String?
+  phone          String?
+  email          String?
+  logoUrl        String?   // Supplier logo uploaded to BunnyCDN
+  website        String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contacts       Contact[]
+
+  @@index([organizationId])
+  @@index([country])
+  @@index([vatNumber])
+}
+
+model Contact {
+  id          String   @id @default(cuid())
+  organizationId String
+  companyId   String?  // Optional association with company
+  supplierId  String?  // Optional association with supplier/collaborator
+  name        String
+  lastName    String?
+  jobPosition String?
+  notes       String?  @db.Text
+  address     String?  @db.Text
+  city        String?
+  zip         String?
+  country     Country?
+  image       String?  // Contact image uploaded to BunnyCDN
+  email       String?
+  phone       String?
+  mobile      String?
+  workPhone   String?
+  gender      Gender?
+  birthday    DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  company      Company?     @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  supplier     Supplier?    @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  crmRecordContacts CrmRecordContact[]
+  assignedOpportunityTasks OpportunityTask[] // Tasks/questions assigned to this contact
+
+  @@index([organizationId])
+  @@index([companyId])
+  @@index([supplierId])
+  @@index([email])
+}
+
+/// =====================
+/// CRM MODELS
+/// =====================
+
+/// CrmRecord
+/// ---------
+/// The business process object: ANY pipeline step (lead, opportunity, deal, offer, etc.).
+/// Status field (LEAD, OPPORTUNITY, OFFER_SENT, WON, etc.) marks pipeline stage.
+/// Belongs to one Company (customer).
+/// Links to any number of contacts (for who is involved in this deal).
+/// 
+/// Practical Example (business flow):
+/// - You receive a new inquiry from "ABC Hotels S.A.".
+/// - If missing, create their Company.
+/// - You add contacts (e.g., "Sophie" and "Nikos")—each as a Contact with companyId pointing to ABC.
+/// - Start a new pipeline process:
+///   - Create a CrmRecord ("Hotel PBX Renewal"), status "LEAD", companyId to ABC.
+///   - Via CrmRecordContact assign "Sophie" (role: Decision Maker), "Nikos" (role: Operations).
+/// - Update CrmRecord.status as the sale progresses:
+///   (LEAD → OPPORTUNITY → OFFER_SENT → WON)
+/// 
+/// See all deals for a company: Filter CrmRecords by companyId.
+/// See all deals for a contact: Join CrmRecordContact → CrmRecord.
+
+model CrmRecord {
+  /// Unique ID for the CRM process (lead, deal, opportunity, etc.)
+  id            String      @id @default(cuid())
+  organizationId String
+  companyId     String       // Each process/lead is for one customer (company)
+  status        CrmStatus    @default(LEAD)  // Drives pipeline stage (update as you progress!)
+  title         String
+  description   String?      @db.Text // Can be used as opportunity brief
+  /// Opportunity brief specific fields (when status is OPPORTUNITY)
+  customerInfo  Json?        // Structured customer information
+  needs         String?      @db.Text // Customer needs
+  productServiceScope String? @db.Text // Product/service scope
+  briefStatus   String?       // DRAFT, QUESTIONS_GENERATED, IN_REVIEW, COMPLETED (only for opportunities)
+  valueEstimate Float?
+  expectedClose DateTime?
+  outcome       String?      // Final disposition ("Won", "Lost", "Cancelled", etc.)
+  closedAt      DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  /// Relations
+  organization  Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  company       Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contacts      CrmRecordContact[] // All participants (contacts) for this record/deal
+  opportunityTasks OpportunityTask[] // Questions/tasks for this opportunity
+  proposals     Proposal[] // Generated proposals for this opportunity
+  attachments   OpportunityAttachment[] // Files attached to this opportunity
+
+  @@index([organizationId])
+  @@index([companyId])
+  @@index([status])
+}
+
+/// CrmRecordContact
+/// ----------------
+/// Join model: allows multiple contacts to participate in a single CrmRecord
+/// Maps which contacts participate in a deal/opportunity/offering.
+/// Allows you to assign roles (Decision Maker, Purchaser, etc.) on a per-process basis.
+
+model CrmRecordContact {
+  crmRecordId String
+  contactId   String
+
+  crmRecord   CrmRecord @relation(fields: [crmRecordId], references: [id], onDelete: Cascade)
+  contact     Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  role        String?   // e.g., "Decision Maker", "Purchasing", "Referrer"
+
+  @@id([crmRecordId, contactId])
+  @@index([crmRecordId])
+  @@index([contactId])
+}
+
+/// =====================
+/// OPPORTUNITY BRIEF & PROPOSAL MODELS
+/// =====================
+/// Note: Opportunities are CrmRecords with status OPPORTUNITY
+/// The brief information is stored in CrmRecord.description and additional fields below
+
+model OpportunityTask {
+  id              String       @id @default(cuid())
+  crmRecordId     String       // The opportunity (CrmRecord with status OPPORTUNITY)
+  assignedToContactId String?  // Contact assigned to answer this question
+  assignedToUserId String?     // User assigned to answer this question
+  companyId       String?       // Direct link to company for easier querying
+  title           String       // The question/task title
+  description     String?      @db.Text // Additional context
+  question        String       @db.Text // The actual question text
+  answer          String?      @db.Text // The answer provided
+  status          TaskStatus   @default(TODO)
+  priority        Int          @default(0) // 0 = low, 1 = medium, 2 = high
+  startDate       DateTime?    // When the task should start
+  dueDate         DateTime?    // When the task is due
+  reminderDate    DateTime?    // When to send a reminder
+  order           Int          @default(0) // For Kanban ordering within status
+  notes           String?      @db.Text // Internal notes
+  emailSentAt     DateTime?    // When the question was emailed
+  answeredAt      DateTime?    // When the answer was provided
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  crmRecord       CrmRecord    @relation(fields: [crmRecordId], references: [id], onDelete: Cascade)
+  assignedTo      Contact?     @relation(fields: [assignedToContactId], references: [id], onDelete: SetNull)
+  assignedToUser  User?        @relation(fields: [assignedToUserId], references: [id], onDelete: SetNull)
+  company         Company?     @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  attachments     OpportunityAttachment[]
+
+  @@index([crmRecordId])
+  @@index([assignedToContactId])
+  @@index([assignedToUserId])
+  @@index([companyId])
+  @@index([status])
+  @@index([startDate])
+  @@index([dueDate])
+  @@index([reminderDate])
+}
+
+model Proposal {
+  id                String   @id @default(cuid())
+  crmRecordId      String   // The opportunity (CrmRecord with status OPPORTUNITY)
+  title             String
+  content           String   @db.Text // The generated proposal content
+  scope             String?  @db.Text
+  deliverables      String?  @db.Text
+  pricing           String?  @db.Text
+  timeline          String?  @db.Text
+  terms             String?  @db.Text
+  status            String   @default("DRAFT") // DRAFT, REVIEW, APPROVED, SENT, ACCEPTED, REJECTED
+  version           Int      @default(1)
+  generatedAt       DateTime @default(now())
+  sentAt            DateTime?
+  reviewedBy        String?  // User ID who reviewed
+  reviewedAt        DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  crmRecord        CrmRecord @relation(fields: [crmRecordId], references: [id], onDelete: Cascade)
+
+  @@index([crmRecordId])
+  @@index([status])
+}
+
+model OpportunityAttachment {
+  id              String    @id @default(cuid())
+  organizationId  String
+  uploadedByUserId String
+  crmRecordId     String?   // If attached to opportunity directly
+  opportunityTaskId String? // If attached to a specific task
+  companyId       String?   // If attached to company directly (generic file)
+  filename        String
+  url             String    @db.Text
+  mimeType        String
+  sizeBytes       Int
+  description     String?   @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploader        User         @relation(fields: [uploadedByUserId], references: [id], onDelete: Cascade)
+  crmRecord       CrmRecord?   @relation(fields: [crmRecordId], references: [id], onDelete: Cascade)
+  opportunityTask OpportunityTask? @relation(fields: [opportunityTaskId], references: [id], onDelete: Cascade)
+  company         Company?      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([crmRecordId])
+  @@index([opportunityTaskId])
+  @@index([companyId])
+  @@index([uploadedByUserId])
+}
+
+/// =====================
+/// DATA SYNC MODELS
+/// =====================
+/// Stores configuration for syncing data with external video conference systems
+
+model DataSync {
+  id             String   @id @default(cuid())
+  organizationId String
+  syncId         String   // Unique identifier for this sync configuration
+  appName        String   // Name of the video conference app (e.g., "Zoom", "Teams", "Google Meet")
+  description    String?  @db.Text
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  syncMethods    DataSyncMethod[]
+
+  @@unique([organizationId, syncId])
+  @@index([organizationId])
+  @@index([appName])
+}
+
+model DataSyncMethod {
+  id             String   @id @default(cuid())
+  dataSyncId     String
+  name           String   // e.g., "Sync Contacts", "Sync Companies", "Sync Users", "Sync Recordings", "Sync Transcripts"
+  endpointUrl    String   @db.Text // The API endpoint URL
+  description    String?  @db.Text
+  httpMethod     String   @default("POST") // HTTP method (GET, POST, PUT, DELETE)
+  requestSchema  Json?    // JSON schema for the request body
+  responseSchema Json?    // JSON schema for the expected response
+  headers        Json?    // Custom headers for the request
+  isActive       Boolean  @default(true)
+  lastSyncedAt   DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  dataSync       DataSync @relation(fields: [dataSyncId], references: [id], onDelete: Cascade)
+
+  @@index([dataSyncId])
+  @@index([name])
+}

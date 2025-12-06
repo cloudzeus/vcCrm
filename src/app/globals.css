@@ -1,26 +1,311 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: #ffffff; /* White background */
+  --color-foreground: #142030; /* Hēi Sè Black - Dark text */
+
+  /* Primary colors - vibrant hot pink */
+  --color-primary: #FF5C8D; /* Stellar Strawberry - Vibrant hot pink */
+  --color-primary-foreground: #ffffff; /* White text on primary */
+  --color-primary-hover: #FF4A7A;
+
+  /* Secondary colors - deep purple-magenta */
+  --color-secondary: #732553; /* Pico Eggplant - Deep purple-magenta */
+  --color-secondary-foreground: #ffffff; /* White text on secondary */
+
+  /* Muted colors - light beige */
+  --color-muted: #F5EDE5; /* Lighter version of Siesta Tan */
+  --color-muted-foreground: #4A4A4A;
+
+  /* Accent colors - muted blue-grey */
+  --color-accent: #85A3B2; /* Grauzone - Muted blue-grey */
+  --color-accent-foreground: #ffffff; /* White text on accent */
+
+  /* Destructive/Error - hot pink */
+  --color-destructive: #FF5C8D; /* Stellar Strawberry */
+  --color-destructive-foreground: #ffffff;
+
+  /* Success - muted blue-grey */
+  --color-success: #85A3B2; /* Grauzone */
+  --color-success-foreground: #ffffff;
+
+  /* Border - always gray-200 and dotted */
+  --color-border: #d1c4b8; /* Lighter beige border */
+  --color-input: #E9D8C8; /* Siesta Tan */
+  --color-ring: #FF5C8D; /* Primary pink */
+
+  /* Card */
+  --color-card: #ffffff;
+  --color-card-foreground: #142030;
+  
+  /* Card gradients using our palette - subtle like the example */
+  --color-card-gradient-1: linear-gradient(135deg, #ffffff 0%, #E9D8C8 100%); /* White to Siesta Tan */
+  --color-card-gradient-2: linear-gradient(135deg, #ffffff 0%, #F5EDE5 100%); /* White to lighter beige */
+  --color-card-gradient-3: linear-gradient(135deg, #ffffff 0%, #FF5C8D/5 100%); /* White to subtle pink */
+  
+  /* Data Table Card - gradient with new palette */
+  --color-table-card: linear-gradient(135deg, #E9D8C8 0%, #F5EDE5 50%, #E9D8C8 100%); /* Siesta Tan gradient */
+
+  /* Popover */
+  --color-popover: #ffffff;
+  --color-popover-foreground: #171717;
+
+  /* Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--color-border);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #f5f5f5; /* Light grey background like the example */
+  color: var(--color-foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted-foreground);
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-table-card: linear-gradient(135deg, #E9D8C8 0%, #F5EDE5 50%, #E9D8C8 100%);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.98 0.01 50); /* White with slight beige tint */
+  --foreground: oklch(0.18 0.02 250); /* #142030 - Hēi Sè Black */
+  --card: oklch(1 0 0); /* White cards */
+  --card-foreground: oklch(0.18 0.02 250); /* Hēi Sè Black */
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.02 250);
+  --primary: oklch(0.65 0.22 5); /* #FF5C8D - Stellar Strawberry */
+  --primary-foreground: oklch(1 0 0); /* White */
+  --secondary: oklch(0.35 0.12 340); /* #732553 - Pico Eggplant */
+  --secondary-foreground: oklch(1 0 0); /* White */
+  --muted: oklch(0.95 0.01 50); /* #F5EDE5 - Lighter beige */
+  --muted-foreground: oklch(0.35 0 0);
+  --accent: oklch(0.65 0.05 220); /* #85A3B2 - Grauzone */
+  --accent-foreground: oklch(1 0 0); /* White */
+  --destructive: oklch(0.65 0.22 5); /* #FF5C8D - Stellar Strawberry */
+  --border: oklch(0.82 0.01 50); /* Lighter beige border */
+  --input: oklch(0.92 0.02 50); /* Siesta Tan */
+  --ring: oklch(0.65 0.22 5); /* Primary pink */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(1 0 0); /* White sidebar background */
+  --sidebar-foreground: oklch(0.18 0.02 250); /* #142030 - Dark text */
+  --sidebar-primary: oklch(0.18 0.02 250); /* #142030 - Dark for active states */
+  --sidebar-primary-foreground: oklch(1 0 0); /* White text on active */
+  --sidebar-accent: oklch(0.95 0.01 50); /* Light beige for hover - #F5EDE5 */
+  --sidebar-accent-foreground: oklch(0.18 0.02 250); /* Dark text on hover */
+  --sidebar-border: oklch(0.9 0 0); /* Light border */
+  --sidebar-ring: oklch(0.65 0.22 5); /* Primary pink for focus */
+}
+
+.dark {
+  --background: oklch(0.98 0.01 50); /* White with slight beige tint */
+  --foreground: oklch(0.92 0.02 50); /* #E9D8C8 - Siesta Tan */
+  --card: oklch(0.22 0.02 250);
+  --card-foreground: oklch(0.92 0.02 50);
+  --popover: oklch(0.22 0.02 250);
+  --popover-foreground: oklch(0.92 0.02 50);
+  --primary: oklch(0.65 0.22 5); /* #FF5C8D - Stellar Strawberry */
+  --primary-foreground: oklch(1 0 0); /* White */
+  --secondary: oklch(0.35 0.12 340); /* #732553 - Pico Eggplant */
+  --secondary-foreground: oklch(1 0 0); /* White */
+  --muted: oklch(0.25 0.02 250);
+  --muted-foreground: oklch(0.7 0 0);
+  --accent: oklch(0.65 0.05 220); /* #85A3B2 - Grauzone */
+  --accent-foreground: oklch(1 0 0); /* White */
+  --destructive: oklch(0.65 0.22 5); /* #FF5C8D - Stellar Strawberry */
+  --border: oklch(0.3 0.02 250);
+  --input: oklch(0.25 0.02 250);
+  --ring: oklch(0.65 0.22 5); /* Primary pink */
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  
+  /* Typography hierarchy - smooth and balanced */
+  h1 {
+    font-size: 1.75rem !important; /* 28px - main page titles */
+    line-height: 1.3 !important;
+    font-weight: 300 !important;
+    letter-spacing: -0.01em !important;
+  }
+  h2 {
+    font-size: 1.375rem !important; /* 22px - section titles */
+    line-height: 1.35 !important;
+    font-weight: 300 !important;
+    letter-spacing: -0.005em !important;
+  }
+  h3 {
+    font-size: 1.125rem !important; /* 18px - subsection titles */
+    line-height: 1.4 !important;
+    font-weight: 300 !important;
+  }
+  h4 {
+    font-size: 1rem !important; /* 16px - card titles */
+    line-height: 1.4 !important;
+    font-weight: 300 !important;
+  }
+  h5 {
+    font-size: 0.875rem !important; /* 14px */
+    line-height: 1.4 !important;
+    font-weight: 300 !important;
+  }
+  h6 {
+    font-size: 0.75rem !important; /* 12px */
+    line-height: 1.4 !important;
+    font-weight: 300 !important;
+  }
+  
+  /* Typography utilities - balanced sizes */
+  .text-xs { font-size: 0.75rem !important; line-height: 1.25rem !important; } /* 12px */
+  .text-sm { font-size: 0.875rem !important; line-height: 1.375rem !important; } /* 14px */
+  .text-base { font-size: 1rem !important; line-height: 1.5rem !important; } /* 16px */
+  .text-lg { font-size: 1.125rem !important; line-height: 1.625rem !important; } /* 18px */
+  .text-xl { font-size: 1.25rem !important; line-height: 1.75rem !important; } /* 20px */
+  .text-2xl { font-size: 1.75rem !important; line-height: 2rem !important; } /* 28px */
+  .text-3xl { font-size: 2rem !important; line-height: 2.25rem !important; } /* 32px */
+  .text-4xl { font-size: 2.5rem !important; line-height: 2.75rem !important; } /* 40px */
+  .text-5xl { font-size: 3rem !important; line-height: 3.25rem !important; } /* 48px */
+  .text-6xl { font-size: 4rem !important; line-height: 1 !important; } /* 64px */
+  
+  /* Select component text sizes - match menu items */
+  [data-slot="select-value"],
+  [data-slot="select-item-text"],
+  [data-slot="select-trigger"] {
+    font-size: 0.75rem !important;
+    font-weight: 300 !important;
+    line-height: 1.25rem !important;
+  }
+  
+  [data-slot="select-item"] {
+    font-size: 0.75rem !important;
+    font-weight: 300 !important;
+  }
+  
+  [data-slot="select-item"] * {
+    font-size: 0.75rem !important;
+    font-weight: 300 !important;
+  }
+
+  /* Remove blue from links */
+  a {
+    color: inherit !important;
+    text-decoration: none;
+  }
+  a:hover {
+    color: hsl(var(--primary)) !important;
+    text-decoration: underline;
+  }
+  
+  /* Reduce spacing globally */
+  .space-y-6 > * + * { margin-top: 1rem !important; }
+  .space-y-4 > * + * { margin-top: 0.75rem !important; }
+  .space-y-2 > * + * { margin-top: 0.375rem !important; }
+  .gap-6 { gap: 1rem !important; }
+  .gap-4 { gap: 0.75rem !important; }
+  .gap-2 { gap: 0.375rem !important; }
+  .p-6 { padding: 1rem !important; }
+  .p-4 { padding: 0.75rem !important; }
+  .p-2 { padding: 0.375rem !important; }
+  .px-4 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+  .py-2 { padding-top: 0.375rem !important; padding-bottom: 0.375rem !important; }
+  
+  /* Smaller buttons */
+  button {
+    font-size: 0.7rem !important;
+    padding: 0.375rem 0.75rem !important;
+  }
+  .btn-sm, button[class*="size-sm"] {
+    font-size: 0.6125rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
 }

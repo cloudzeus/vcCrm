@@ -1,19 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Toaster } from "@/components/ui/sonner"
+import dynamic from "next/dynamic"
+
+const Toaster = dynamic(() => import("@/components/ui/sonner").then((mod) => ({ default: mod.Toaster })), {
+  ssr: false,
+})
 
 export function ToasterWrapper() {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) {
-    return null
-  }
-
   return <Toaster />
 }
 

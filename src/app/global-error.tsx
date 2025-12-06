@@ -1,5 +1,7 @@
 "use client";
 
+// Minimal error page that doesn't use any React context or hooks
+// This prevents build errors during prerender
 export default function GlobalError({
   error,
   reset,

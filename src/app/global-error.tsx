@@ -1,7 +1,8 @@
 "use client";
 
-// Minimal global error page that doesn't import anything that uses React context
-// This prevents build errors during prerender
+// Force dynamic rendering to skip static generation and prevent build errors
+export const dynamic = "force-dynamic";
+
 export default function GlobalError({
   error,
   reset,

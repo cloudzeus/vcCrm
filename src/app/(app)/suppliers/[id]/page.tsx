@@ -201,8 +201,8 @@ export default async function SupplierDetailPage({
   });
 
   // Filter out generic company files and files attached directly to leads/opportunities (customer files)
-  const attachments = allAttachments.filter((file) => 
-    !file.companyId && 
+  const attachments = allAttachments.filter((file) =>
+    !file.companyId &&
     file.opportunityTaskId !== null // Ensure it's a task attachment
   );
 
@@ -294,7 +294,17 @@ export default async function SupplierDetailPage({
         logoUrl: supplier.logoUrl || undefined,
         website: supplier.website || undefined,
         contactCount: supplier._count.contacts,
-        contacts: supplier.contacts,
+        contacts: supplier.contacts.map((c) => ({
+          id: c.id,
+          name: c.name,
+          lastName: c.lastName || undefined,
+          email: c.email || undefined,
+          phone: c.phone || undefined,
+          mobile: c.mobile || undefined,
+          workPhone: c.workPhone || undefined,
+          jobPosition: c.jobPosition || undefined,
+          image: c.image || undefined,
+        })),
       }}
       allSuppliers={allSuppliers}
       leads={leads.map((lead) => ({

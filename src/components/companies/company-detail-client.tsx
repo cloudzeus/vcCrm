@@ -145,8 +145,8 @@ interface CompanyDetailClientProps {
   files?: FileAttachment[];
 }
 
-export function CompanyDetailClient({ 
-  company, 
+export function CompanyDetailClient({
+  company,
   allCompanies,
   leads = [],
   opportunities = [],
@@ -377,158 +377,38 @@ export function CompanyDetailClient({
         <Card className="border-dotted border-gray-200 shadow-sm bg-white">
           {mounted ? (
             <Tabs defaultValue="contacts" className="w-full">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <TabsList>
-                  <TabsTrigger value="contacts">
-                    <Users className="h-3.5 w-3.5 mr-1.5" />
-                    Contacts ({currentContacts.length})
-                  </TabsTrigger>
-                  <TabsTrigger value="leads">
-                    <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
-                    Leads ({leads.length})
-                  </TabsTrigger>
-                  <TabsTrigger value="opportunities">
-                    <Briefcase className="h-3.5 w-3.5 mr-1.5" />
-                    Opportunities ({opportunities.length})
-                  </TabsTrigger>
-                  <TabsTrigger value="proposals">
-                    <FileText className="h-3.5 w-3.5 mr-1.5" />
-                    Proposals ({proposals.length})
-                  </TabsTrigger>
-                  <TabsTrigger value="files">
-                    <Paperclip className="h-3.5 w-3.5 mr-1.5" />
-                    Files ({files.length})
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <TabsContent value="contacts" className="mt-0">
-                <div className="flex items-center justify-between mb-3">
-                  <CardDescription className="text-xs">
-                    People associated with this company
-                  </CardDescription>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setEditingContact(null);
-                      setIsContactModalOpen(true);
-                    }}
-                  >
-                    <Plus className="h-3.5 w-3.5 mr-1.5" />
-                    Add Contact
-                  </Button>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <TabsList>
+                    <TabsTrigger value="contacts">
+                      <Users className="h-3.5 w-3.5 mr-1.5" />
+                      Contacts ({currentContacts.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="leads">
+                      <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
+                      Leads ({leads.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="opportunities">
+                      <Briefcase className="h-3.5 w-3.5 mr-1.5" />
+                      Opportunities ({opportunities.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="proposals">
+                      <FileText className="h-3.5 w-3.5 mr-1.5" />
+                      Proposals ({proposals.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="files">
+                      <Paperclip className="h-3.5 w-3.5 mr-1.5" />
+                      Files ({files.length})
+                    </TabsTrigger>
+                  </TabsList>
                 </div>
-                {currentContacts.length > 0 ? (
-                  <div className="space-y-3">
-                    {currentContacts.map((contact) => (
-                      <Card key={contact.id} className="p-3 border-gray-200 group relative">
-                        <div className="flex items-start gap-3">
-                      <Avatar className={cn("h-10 w-10", contact.image && "bg-white")}>
-                        <AvatarImage src={contact.image || undefined} />
-                        <AvatarFallback className="text-xs font-light">
-                          {contact.name.charAt(0).toUpperCase()}
-                          {contact.lastName?.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                          <div className="flex-1 min-w-0 pr-20">
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="text-xs font-light">
-                                {contact.name} {contact.lastName || ""}
-                              </p>
-                              {contact.jobPosition && (
-                                <Badge variant="outline" className="text-[10px] font-light">
-                                  {contact.jobPosition}
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="space-y-1">
-                              {contact.email && (
-                                <p className="text-xs font-light text-muted-foreground flex items-center gap-1">
-                                  <Mail className="h-3 w-3" />
-                                  {contact.email}
-                                </p>
-                              )}
-                              {contact.phone && (
-                                <p className="text-xs font-light text-muted-foreground flex items-center gap-1">
-                                  <Phone className="h-3 w-3" />
-                                  {contact.phone}
-                                </p>
-                              )}
-                              {contact.mobile && (
-                                <p className="text-xs font-light text-muted-foreground flex items-center gap-1">
-                                  <Phone className="h-3 w-3" />
-                                  Mobile: {contact.mobile}
-                                </p>
-                              )}
-                              {contact.workPhone && (
-                                <p className="text-xs font-light text-muted-foreground flex items-center gap-1">
-                                  <Phone className="h-3 w-3" />
-                                  Work: {contact.workPhone}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="absolute top-1 right-1 flex items-center gap-1 shrink-0 z-10">
-                            <Badge
-                              variant="outline"
-                              className="h-5 px-1.5 py-0 cursor-pointer hover:bg-gray-100 border-[#85A3B2]/30 text-[8px] font-light flex items-center justify-center"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                setEditingContact(contact);
-                                setIsContactModalOpen(true);
-                              }}
-                              onPointerDown={(e) => e.stopPropagation()}
-                              title="Edit"
-                              asChild={false}
-                            >
-                              Edit
-                            </Badge>
-                            <Badge
-                              variant="outline"
-                              className="h-5 px-1.5 py-0 cursor-pointer hover:bg-gray-100 border-[#FF5C8D]/30 text-[8px] font-light flex items-center justify-center"
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                const confirmed = await confirm(`Are you sure you want to delete ${contact.name} ${contact.lastName || ''}?`);
-                                if (confirmed) {
-                                  try {
-                                    const response = await fetch(`/api/contacts/${contact.id}`, {
-                                      method: 'DELETE',
-                                    });
-
-                                    if (!response.ok) {
-                                      const error = await response.json();
-                                      throw new Error(error.error || 'Failed to delete contact');
-                                    }
-
-                                    toast.success('Contact deleted');
-                                    router.refresh();
-                                  } catch (error) {
-                                    toast.error(error instanceof Error ? error.message : 'Failed to delete contact');
-                                  }
-                                }
-                              }}
-                              onPointerDown={(e) => e.stopPropagation()}
-                              title="Delete"
-                              asChild={false}
-                            >
-                              Delete
-                            </Badge>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Users className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-xs text-muted-foreground font-light mb-3">
-                      No contacts associated with this company
-                    </p>
+              </CardHeader>
+              <CardContent>
+                <TabsContent value="contacts" className="mt-0">
+                  <div className="flex items-center justify-between mb-3">
+                    <CardDescription className="text-xs">
+                      People associated with this company
+                    </CardDescription>
                     <Button
                       variant="outline"
                       size="sm"
@@ -541,297 +421,417 @@ export function CompanyDetailClient({
                       Add Contact
                     </Button>
                   </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="leads" className="mt-0">
-                {leads.length > 0 ? (
-                  <div className="space-y-2">
-                    {leads.map((lead) => (
-                      <Link key={lead.id} href={`/leads/${lead.id}`}>
-                        <Card className="p-3 border-gray-200 hover:border-[#85A3B2] transition-colors cursor-pointer">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-light truncate">{lead.title}</p>
-                              <p className="text-[10px] text-muted-foreground mt-1">
-                                {format(new Date(lead.updatedAt), "MMM d, yyyy")}
-                              </p>
+                  {currentContacts.length > 0 ? (
+                    <div className="space-y-3">
+                      {currentContacts.map((contact) => (
+                        <Card key={contact.id} className="p-3 border-gray-200 group relative">
+                          <div className="flex items-start gap-3">
+                            <Avatar className={cn("h-10 w-10", contact.image && "bg-white")}>
+                              <AvatarImage src={contact.image || undefined} />
+                              <AvatarFallback className="text-xs font-light">
+                                {contact.name.charAt(0).toUpperCase()}
+                                {contact.lastName?.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0 pr-20">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="text-xs font-light">
+                                  {contact.name} {contact.lastName || ""}
+                                </p>
+                                {contact.jobPosition && (
+                                  <Badge variant="outline" className="text-[10px] font-light">
+                                    {contact.jobPosition}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="space-y-1">
+                                {contact.email && (
+                                  <p className="text-xs font-light text-muted-foreground flex items-center gap-1">
+                                    <Mail className="h-3 w-3" />
+                                    {contact.email}
+                                  </p>
+                                )}
+                                {contact.phone && (
+                                  <p className="text-xs font-light text-muted-foreground flex items-center gap-1">
+                                    <Phone className="h-3 w-3" />
+                                    {contact.phone}
+                                  </p>
+                                )}
+                                {contact.mobile && (
+                                  <p className="text-xs font-light text-muted-foreground flex items-center gap-1">
+                                    <Phone className="h-3 w-3" />
+                                    Mobile: {contact.mobile}
+                                  </p>
+                                )}
+                                {contact.workPhone && (
+                                  <p className="text-xs font-light text-muted-foreground flex items-center gap-1">
+                                    <Phone className="h-3 w-3" />
+                                    Work: {contact.workPhone}
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                            <Badge variant="outline" className="text-[10px]">
-                              {lead.status}
-                            </Badge>
+                            <div className="absolute top-1 right-1 flex items-center gap-1 shrink-0 z-10">
+                              <Badge
+                                variant="outline"
+                                className="h-5 px-1.5 py-0 cursor-pointer hover:bg-gray-100 border-[#85A3B2]/30 text-[8px] font-light flex items-center justify-center"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  setEditingContact(contact);
+                                  setIsContactModalOpen(true);
+                                }}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                title="Edit"
+                                asChild={false}
+                              >
+                                Edit
+                              </Badge>
+                              <Badge
+                                variant="outline"
+                                className="h-5 px-1.5 py-0 cursor-pointer hover:bg-gray-100 border-[#FF5C8D]/30 text-[8px] font-light flex items-center justify-center"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  const confirmed = await confirm(`Are you sure you want to delete ${contact.name} ${contact.lastName || ''}?`);
+                                  if (confirmed) {
+                                    try {
+                                      const response = await fetch(`/api/contacts/${contact.id}`, {
+                                        method: 'DELETE',
+                                      });
+
+                                      if (!response.ok) {
+                                        const error = await response.json();
+                                        throw new Error(error.error || 'Failed to delete contact');
+                                      }
+
+                                      toast.success('Contact deleted');
+                                      router.refresh();
+                                    } catch (error) {
+                                      toast.error(error instanceof Error ? error.message : 'Failed to delete contact');
+                                    }
+                                  }
+                                }}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                title="Delete"
+                                asChild={false}
+                              >
+                                Delete
+                              </Badge>
+                            </div>
                           </div>
                         </Card>
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <TrendingUp className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-xs text-muted-foreground font-light">
-                      No leads for this company
-                    </p>
-                  </div>
-                )}
-              </TabsContent>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Users className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-xs text-muted-foreground font-light mb-3">
+                        No contacts associated with this company
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditingContact(null);
+                          setIsContactModalOpen(true);
+                        }}
+                      >
+                        <Plus className="h-3.5 w-3.5 mr-1.5" />
+                        Add Contact
+                      </Button>
+                    </div>
+                  )}
+                </TabsContent>
 
-              <TabsContent value="opportunities" className="mt-0">
-                {opportunities.length > 0 ? (
-                  <div className="space-y-2">
-                    {opportunities.map((opp) => {
-                      const taskStatusBreakdown = opp.taskStatusBreakdown || {
-                        TODO: 0,
-                        IN_PROGRESS: 0,
-                        REVIEW: 0,
-                        DONE: 0,
-                      };
-                      
-                      const totalTasks = taskStatusBreakdown.TODO + taskStatusBreakdown.IN_PROGRESS + taskStatusBreakdown.REVIEW + taskStatusBreakdown.DONE;
-                      
-                      const chartData = totalTasks > 0 ? [
-                        { name: "TODO", value: taskStatusBreakdown.TODO, fill: "#D4A574" },
-                        { name: "IN_PROGRESS", value: taskStatusBreakdown.IN_PROGRESS, fill: "#6B9FB8" },
-                        { name: "REVIEW", value: taskStatusBreakdown.REVIEW, fill: "#8B2D5F" },
-                        { name: "DONE", value: taskStatusBreakdown.DONE, fill: "#4A9B8C" },
-                      ].filter(item => item.value > 0) : [];
-
-                      const chartConfig: ChartConfig = {
-                        TODO: {
-                          label: "To Do",
-                          color: "#D4A574",
-                        },
-                        IN_PROGRESS: {
-                          label: "In Progress",
-                          color: "#6B9FB8",
-                        },
-                        REVIEW: {
-                          label: "Review",
-                          color: "#8B2D5F",
-                        },
-                        DONE: {
-                          label: "Done",
-                          color: "#4A9B8C",
-                        },
-                      } satisfies ChartConfig;
-
-                      return (
-                        <Link key={opp.id} href={`/leads/${opp.id}`}>
+                <TabsContent value="leads" className="mt-0">
+                  {leads.length > 0 ? (
+                    <div className="space-y-2">
+                      {leads.map((lead) => (
+                        <Link key={lead.id} href={`/leads/${lead.id}`}>
                           <Card className="p-3 border-gray-200 hover:border-[#85A3B2] transition-colors cursor-pointer">
                             <div className="flex items-center justify-between">
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs font-light truncate">{opp.title}</p>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <p className="text-[10px] text-muted-foreground">
-                                    {opp.taskCount} tasks • {opp.proposalCount} proposals
-                                  </p>
-                                  {opp.valueEstimate && (
-                                    <p className="text-[10px] text-muted-foreground">
-                                      • €{opp.valueEstimate.toLocaleString()}
-                                    </p>
-                                  )}
-                                </div>
+                                <p className="text-xs font-light truncate">{lead.title}</p>
+                                <p className="text-[10px] text-muted-foreground mt-1">
+                                  {format(new Date(lead.updatedAt), "MMM d, yyyy")}
+                                </p>
                               </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                {opp.briefStatus && (
-                                  <Badge variant="outline" className="text-[10px]">
-                                    {opp.briefStatus}
-                                  </Badge>
-                                )}
-                                {totalTasks > 0 && chartData.length > 0 && (
-                                  <ChartContainer
-                                    config={chartConfig}
-                                    className="h-12 w-12"
-                                  >
-                                    <RadialBarChart
-                                      data={chartData}
-                                      innerRadius={12}
-                                      outerRadius={24}
-                                      startAngle={90}
-                                      endAngle={-270}
-                                    >
-                                      <ChartTooltip
-                                        cursor={false}
-                                        content={({ active, payload }) => {
-                                          if (active && payload && payload.length > 0) {
-                                            const entry = payload[0];
-                                            const statusName = entry.name;
-                                            const value = entry.value as number;
-                                            const statusLabels: Record<string, string> = {
-                                              TODO: "To Do",
-                                              IN_PROGRESS: "In Progress",
-                                              REVIEW: "Review",
-                                              DONE: "Done",
-                                            };
-                                            return (
-                                              <div className="rounded-lg border bg-background px-2 py-1.5 text-xs shadow-xl">
-                                                <div className="font-light">
-                                                  {statusLabels[statusName] || statusName}: {value}
-                                                </div>
-                                              </div>
-                                            );
-                                          }
-                                          return null;
-                                        }}
-                                      />
-                                      <PolarRadiusAxis tick={false} tickLine={false} axisLine={false} />
-                                      <RadialBar
-                                        dataKey="value"
-                                        cornerRadius={2}
-                                        className="stroke-transparent stroke-2"
-                                      >
-                                        {chartData.map((entry, index) => (
-                                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                                        ))}
-                                      </RadialBar>
-                                    </RadialBarChart>
-                                  </ChartContainer>
-                                )}
-                              </div>
+                              <Badge variant="outline" className="text-[10px]">
+                                {lead.status}
+                              </Badge>
                             </div>
                           </Card>
                         </Link>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Briefcase className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-xs text-muted-foreground font-light">
-                      No opportunities for this company
-                    </p>
-                  </div>
-                )}
-              </TabsContent>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <TrendingUp className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-xs text-muted-foreground font-light">
+                        No leads for this company
+                      </p>
+                    </div>
+                  )}
+                </TabsContent>
 
-              <TabsContent value="proposals" className="mt-0">
-                {proposals.length > 0 ? (
-                  <div className="space-y-2">
-                    {proposals.map((proposal) => (
-                      <Link key={proposal.id} href={`/leads/${proposal.crmRecordId}`}>
-                        <Card className="p-3 border-gray-200 hover:border-[#85A3B2] transition-colors cursor-pointer">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-light truncate">
-                                {proposal.title || proposal.crmRecordTitle}
-                              </p>
-                              <p className="text-[10px] text-muted-foreground mt-1">
-                                Version {proposal.version} • {proposal.crmRecordTitle}
-                              </p>
-                            </div>
-                            <Badge variant="outline" className="text-[10px]">
-                              {proposal.status}
-                            </Badge>
-                          </div>
-                        </Card>
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-xs text-muted-foreground font-light">
-                      No proposals for this company
-                    </p>
-                  </div>
-                )}
-              </TabsContent>
+                <TabsContent value="opportunities" className="mt-0">
+                  {opportunities.length > 0 ? (
+                    <div className="space-y-2">
+                      {opportunities.map((opp) => {
+                        const taskStatusBreakdown = opp.taskStatusBreakdown || {
+                          TODO: 0,
+                          IN_PROGRESS: 0,
+                          REVIEW: 0,
+                          DONE: 0,
+                        };
 
-              <TabsContent value="files" className="mt-0">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex-1" />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsFileUploadModalOpen(true)}
-                    className="text-xs"
-                  >
-                    <Plus className="h-3.5 w-3.5 mr-1.5" />
-                    Add File
-                  </Button>
-                </div>
-                {files.length > 0 ? (
-                  <div className="space-y-2">
-                    {files.map((file) => (
-                      <Card key={file.id} className="p-3 border-gray-200 relative group">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-start gap-3 flex-1 min-w-0">
-                            <Paperclip className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-light truncate">{file.filename}</p>
-                              {file.description && (
-                                <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2">
-                                  {file.description}
+                        const totalTasks = taskStatusBreakdown.TODO + taskStatusBreakdown.IN_PROGRESS + taskStatusBreakdown.REVIEW + taskStatusBreakdown.DONE;
+
+                        const chartData = totalTasks > 0 ? [
+                          { name: "TODO", value: taskStatusBreakdown.TODO, fill: "#D4A574" },
+                          { name: "IN_PROGRESS", value: taskStatusBreakdown.IN_PROGRESS, fill: "#6B9FB8" },
+                          { name: "REVIEW", value: taskStatusBreakdown.REVIEW, fill: "#8B2D5F" },
+                          { name: "DONE", value: taskStatusBreakdown.DONE, fill: "#4A9B8C" },
+                        ].filter(item => item.value > 0) : [];
+
+                        const chartConfig: ChartConfig = {
+                          TODO: {
+                            label: "To Do",
+                            color: "#D4A574",
+                          },
+                          IN_PROGRESS: {
+                            label: "In Progress",
+                            color: "#6B9FB8",
+                          },
+                          REVIEW: {
+                            label: "Review",
+                            color: "#8B2D5F",
+                          },
+                          DONE: {
+                            label: "Done",
+                            color: "#4A9B8C",
+                          },
+                        } satisfies ChartConfig;
+
+                        return (
+                          <Link key={opp.id} href={`/leads/${opp.id}`}>
+                            <Card className="p-3 border-gray-200 hover:border-[#85A3B2] transition-colors cursor-pointer">
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-light truncate">{opp.title}</p>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <p className="text-[10px] text-muted-foreground">
+                                      {opp.taskCount} tasks • {opp.proposalCount} proposals
+                                    </p>
+                                    {opp.valueEstimate && (
+                                      <p className="text-[10px] text-muted-foreground">
+                                        • €{opp.valueEstimate.toLocaleString()}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  {opp.briefStatus && (
+                                    <Badge variant="outline" className="text-[10px]">
+                                      {opp.briefStatus}
+                                    </Badge>
+                                  )}
+                                  {totalTasks > 0 && chartData.length > 0 && (
+                                    <ChartContainer
+                                      config={chartConfig}
+                                      className="h-12 w-12"
+                                    >
+                                      <RadialBarChart
+                                        data={chartData}
+                                        innerRadius={12}
+                                        outerRadius={24}
+                                        startAngle={90}
+                                        endAngle={-270}
+                                      >
+                                        <ChartTooltip
+                                          cursor={false}
+                                          content={({ active, payload }) => {
+                                            if (active && payload && payload.length > 0) {
+                                              const entry = payload[0];
+                                              const statusName = entry.name;
+                                              const value = entry.value as number;
+                                              const statusLabels: Record<string, string> = {
+                                                TODO: "To Do",
+                                                IN_PROGRESS: "In Progress",
+                                                REVIEW: "Review",
+                                                DONE: "Done",
+                                              };
+                                              return (
+                                                <div className="rounded-lg border bg-background px-2 py-1.5 text-xs shadow-xl">
+                                                  <div className="font-light">
+                                                    {statusLabels[statusName as keyof typeof statusLabels] || statusName}: {value}
+                                                  </div>
+                                                </div>
+                                              );
+                                            }
+                                            return null;
+                                          }}
+                                        />
+                                        <PolarRadiusAxis tick={false} tickLine={false} axisLine={false} />
+                                        <RadialBar
+                                          dataKey="value"
+                                          cornerRadius={2}
+                                          className="stroke-transparent stroke-2"
+                                        >
+                                          {chartData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                                          ))}
+                                        </RadialBar>
+                                      </RadialBarChart>
+                                    </ChartContainer>
+                                  )}
+                                </div>
+                              </div>
+                            </Card>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Briefcase className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-xs text-muted-foreground font-light">
+                        No opportunities for this company
+                      </p>
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="proposals" className="mt-0">
+                  {proposals.length > 0 ? (
+                    <div className="space-y-2">
+                      {proposals.map((proposal) => (
+                        <Link key={proposal.id} href={`/leads/${proposal.crmRecordId}`}>
+                          <Card className="p-3 border-gray-200 hover:border-[#85A3B2] transition-colors cursor-pointer">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-light truncate">
+                                  {proposal.title || proposal.crmRecordTitle}
                                 </p>
-                              )}
-                              <p className="text-[10px] text-muted-foreground truncate mt-1">
-                                {file.crmRecordTitle}{file.taskTitle ? ` • ${file.taskTitle}` : ''}
-                              </p>
-                              <p className="text-[10px] text-muted-foreground mt-0.5">
-                                {format(new Date(file.createdAt), "MMM d, yyyy")} • {file.uploaderName}
-                              </p>
+                                <p className="text-[10px] text-muted-foreground mt-1">
+                                  Version {proposal.version} • {proposal.crmRecordTitle}
+                                </p>
+                              </div>
+                              <Badge variant="outline" className="text-[10px]">
+                                {proposal.status}
+                              </Badge>
                             </div>
-                          </div>
-                          <div className="flex items-center gap-1 shrink-0">
-                            <span className="text-[10px] text-muted-foreground">
-                              {(file.sizeBytes / 1024).toFixed(1)} KB
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => window.open(file.url, '_blank')}
-                            >
-                              <Download className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-destructive hover:text-destructive"
-                              onClick={async () => {
-                                const confirmed = await confirm(`Are you sure you want to delete ${file.filename}?`);
-                                if (confirmed) {
-                                  try {
-                                    // Use generic company file endpoint if it's a generic file, otherwise use opportunity endpoint
-                                    const isGenericFile = file.crmRecordId === 'generic';
-                                    const response = isGenericFile
-                                      ? await fetch(`/api/companies/${company.id}/files/${file.id}`, {
+                          </Card>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-xs text-muted-foreground font-light">
+                        No proposals for this company
+                      </p>
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="files" className="mt-0">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex-1" />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsFileUploadModalOpen(true)}
+                      className="text-xs"
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1.5" />
+                      Add File
+                    </Button>
+                  </div>
+                  {files.length > 0 ? (
+                    <div className="space-y-2">
+                      {files.map((file) => (
+                        <Card key={file.id} className="p-3 border-gray-200 relative group">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                              <Paperclip className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-light truncate">{file.filename}</p>
+                                {file.description && (
+                                  <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2">
+                                    {file.description}
+                                  </p>
+                                )}
+                                <p className="text-[10px] text-muted-foreground truncate mt-1">
+                                  {file.crmRecordTitle}{file.taskTitle ? ` • ${file.taskTitle}` : ''}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground mt-0.5">
+                                  {format(new Date(file.createdAt), "MMM d, yyyy")} • {file.uploaderName}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span className="text-[10px] text-muted-foreground">
+                                {(file.sizeBytes / 1024).toFixed(1)} KB
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => window.open(file.url, '_blank')}
+                              >
+                                <Download className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-destructive hover:text-destructive"
+                                onClick={async () => {
+                                  const confirmed = await confirm(`Are you sure you want to delete ${file.filename}?`);
+                                  if (confirmed) {
+                                    try {
+                                      // Use generic company file endpoint if it's a generic file, otherwise use opportunity endpoint
+                                      const isGenericFile = file.crmRecordId === 'generic';
+                                      const response = isGenericFile
+                                        ? await fetch(`/api/companies/${company.id}/files/${file.id}`, {
                                           method: 'DELETE',
                                         })
-                                      : await fetch(`/api/opportunities/${file.crmRecordId}/attachments/${file.id}`, {
+                                        : await fetch(`/api/opportunities/${file.crmRecordId}/attachments/${file.id}`, {
                                           method: 'DELETE',
                                         });
 
-                                    if (!response.ok) {
-                                      const error = await response.json();
-                                      throw new Error(error.error || 'Failed to delete file');
-                                    }
+                                      if (!response.ok) {
+                                        const error = await response.json();
+                                        throw new Error(error.error || 'Failed to delete file');
+                                      }
 
-                                    toast.success('File deleted');
-                                    router.refresh();
-                                  } catch (error) {
-                                    toast.error(error instanceof Error ? error.message : 'Failed to delete file');
+                                      toast.success('File deleted');
+                                      router.refresh();
+                                    } catch (error) {
+                                      toast.error(error instanceof Error ? error.message : 'Failed to delete file');
+                                    }
                                   }
-                                }
-                              }}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
+                                }}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Paperclip className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-xs text-muted-foreground font-light">
-                      No files for this company
-                    </p>
-                  </div>
-                )}
-              </TabsContent>
-            </CardContent>
-          </Tabs>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Paperclip className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-xs text-muted-foreground font-light">
+                        No files for this company
+                      </p>
+                    </div>
+                  )}
+                </TabsContent>
+              </CardContent>
+            </Tabs>
           ) : (
             <CardContent>
               <div className="text-center py-8">
@@ -864,7 +864,7 @@ export function CompanyDetailClient({
           address: currentCompany.address,
           irsOffice: currentCompany.irsOffice,
           city: currentCompany.city,
-          country: currentCompany.country || undefined,
+          country: currentCompany.country as any || undefined,
           zip: currentCompany.zip,
           phone: currentCompany.phone,
           email: currentCompany.email,
@@ -878,11 +878,11 @@ export function CompanyDetailClient({
         onOpenChange={setIsContactModalOpen}
         onSubmit={async (data) => {
           try {
-            const url = editingContact 
+            const url = editingContact
               ? `/api/contacts/${editingContact.id}`
               : '/api/contacts';
             const method = editingContact ? 'PUT' : 'POST';
-            
+
             const contactData = {
               ...data,
               companyId: currentCompany.id, // Always set to current company
@@ -1050,7 +1050,7 @@ export function CompanyDetailClient({
 
                   setUploadingFile(true);
                   setUploadProgress(0);
-                  
+
                   try {
                     // Simulate progress
                     const progressInterval = setInterval(() => {
@@ -1072,13 +1072,13 @@ export function CompanyDetailClient({
                     // If opportunity/lead is selected, use that endpoint, otherwise use generic company file endpoint
                     const response = selectedOpportunityId
                       ? await fetch(`/api/opportunities/${selectedOpportunityId}/attachments`, {
-                          method: "POST",
-                          body: formData,
-                        })
+                        method: "POST",
+                        body: formData,
+                      })
                       : await fetch(`/api/companies/${company.id}/files`, {
-                          method: "POST",
-                          body: formData,
-                        });
+                        method: "POST",
+                        body: formData,
+                      });
 
                     clearInterval(progressInterval);
                     setUploadProgress(100);

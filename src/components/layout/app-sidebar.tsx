@@ -312,7 +312,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 Lead Manager
               </p>
             </div>
-            <DropdownMenu suppressHydrationWarning>
+            <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"

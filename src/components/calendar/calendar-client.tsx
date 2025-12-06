@@ -13,7 +13,7 @@ interface PostSchedule {
   influencerId: string;
   platform: string;
   contentType: string;
-  scheduledAt: string;
+  scheduledAt: string | Date;
   status: string;
   caption?: string | null;
   campaign?: {
@@ -80,9 +80,9 @@ export function CalendarClient({ initialPosts, initialTasks = [] }: CalendarClie
         prev.map((post) =>
           post.id === postId
             ? {
-                ...post,
-                scheduledAt: updated.scheduledAt,
-              }
+              ...post,
+              scheduledAt: updated.scheduledAt,
+            }
             : post
         )
       );
@@ -151,21 +151,21 @@ export function CalendarClient({ initialPosts, initialTasks = [] }: CalendarClie
     try {
       // Fetch the full task data
       const taskResponse = await fetch(`/api/opportunities/${task.opportunityId}/tasks/${task.id}`);
-      
+
       if (!taskResponse.ok) {
         throw new Error("Failed to fetch task");
       }
 
       const taskData = await taskResponse.json();
-      
+
       // Fetch the lead data to get contacts and users
       const leadResponse = await fetch(`/api/leads/${task.opportunityId}`);
       let contacts: Array<{ id: string; name: string; email: string | null; type?: "contact" | "user"; role?: string }> = [];
-      
+
       if (leadResponse.ok) {
         try {
           const lead = await leadResponse.json();
-          
+
           // Check if response is an error object or lead is null/undefined
           if (!lead || lead.error) {
             console.error("API returned error or null lead:", lead?.error || "Lead is null/undefined");
@@ -176,12 +176,12 @@ export function CalendarClient({ initialPosts, initialTasks = [] }: CalendarClie
             // Fetch users
             const usersResponse = await fetch('/api/users');
             let users: Array<{ id: string; name: string | null; email: string; role: string }> = [];
-            
+
             if (usersResponse.ok) {
               const usersData = await usersResponse.json();
               users = Array.isArray(usersData) ? usersData : [];
             }
-            
+
             // Combine contacts and users similar to lead page
             const leadContacts = Array.isArray(lead.contacts) ? lead.contacts : [];
             contacts = [
@@ -204,7 +204,7 @@ export function CalendarClient({ initialPosts, initialTasks = [] }: CalendarClie
           console.error("Error parsing lead response:", error);
         }
       }
-      
+
       // If no contacts loaded from lead, at least fetch users
       if (contacts.length === 0) {
         const usersResponse = await fetch('/api/users');
@@ -222,7 +222,7 @@ export function CalendarClient({ initialPosts, initialTasks = [] }: CalendarClie
       }
 
       setTaskContacts(contacts);
-      
+
       // Map task data to form format
       setEditingTask({
         id: taskData.task.id,
@@ -230,14 +230,14 @@ export function CalendarClient({ initialPosts, initialTasks = [] }: CalendarClie
         title: taskData.task.title,
         question: taskData.task.question,
         description: taskData.task.description || "",
-        assignedToContactId: taskData.task.assignedToContactId || taskData.task.assignedToUserId ? 
+        assignedToContactId: taskData.task.assignedToContactId || taskData.task.assignedToUserId ?
           (taskData.task.assignedToUserId ? `user-${taskData.task.assignedToUserId}` : taskData.task.assignedToContactId) : null,
         priority: taskData.task.priority || 0,
         startDate: taskData.task.startDate ? new Date(taskData.task.startDate).toISOString().split('T')[0] : null,
         dueDate: taskData.task.dueDate ? new Date(taskData.task.dueDate).toISOString().split('T')[0] : null,
         reminderDate: taskData.task.reminderDate ? new Date(taskData.task.reminderDate).toISOString().split('T')[0] : null,
       });
-      
+
       setIsTaskModalOpen(true);
     } catch (error) {
       console.error("Error fetching task:", error);

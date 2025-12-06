@@ -124,17 +124,17 @@ export default async function CalendarPage() {
       companyName: task.crmRecord.company.name,
       assignedTo: task.assignedTo
         ? {
-            id: task.assignedTo.id,
-            name: task.assignedTo.name,
-            email: task.assignedTo.email,
-          }
+          id: task.assignedTo.id,
+          name: task.assignedTo.name || "Unknown Contact",
+          email: task.assignedTo.email,
+        }
         : task.assignedToUser
-        ? {
+          ? {
             id: task.assignedToUser.id,
-            name: task.assignedToUser.name,
+            name: task.assignedToUser.name || "Unknown User",
             email: task.assignedToUser.email,
           }
-        : null,
+          : null,
     }));
 
   return (

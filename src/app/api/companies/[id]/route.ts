@@ -66,10 +66,9 @@ export async function GET(
       },
       include: {
         contacts: {
-          orderBy: [
-            { isPrimary: "desc" },
-            { createdAt: "asc" },
-          ],
+          orderBy: {
+            createdAt: "asc",
+          },
         },
         _count: {
           select: {
@@ -106,10 +105,6 @@ export async function GET(
         name: contact.name,
         email: contact.email || "",
         phone: contact.phone || "",
-        role: contact.role || "",
-        department: contact.department || "",
-        isPrimary: contact.isPrimary,
-        notes: contact.notes || "",
       })),
     });
   } catch (error) {

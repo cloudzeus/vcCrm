@@ -239,17 +239,33 @@ export default async function LeadDetailPage({
     id: task.id,
     title: task.title,
     question: task.question || "",
+    description: task.description,
     answer: task.answer || "",
     status: task.status,
+    priority: task.priority,
     assignedToContactId: task.assignedToContactId
       ? task.assignedToContactId
       : task.assignedToUser
-      ? `user-${task.assignedToUser.id}`
-      : null,
+        ? `user-${task.assignedToUser.id}`
+        : null,
     assignedToName: task.assignedTo?.name || task.assignedToUser?.name || null,
+    assignedTo: task.assignedTo
+      ? {
+        id: task.assignedTo.id,
+        name: task.assignedTo.name || "Unknown",
+        email: task.assignedTo.email,
+      }
+      : task.assignedToUser
+        ? {
+          id: task.assignedToUser.id,
+          name: task.assignedToUser.name || "Unknown",
+          email: task.assignedToUser.email,
+        }
+        : null,
     dueDate: task.dueDate,
     startDate: task.startDate,
     reminderDate: task.reminderDate,
+    emailSentAt: task.emailSentAt,
     order: task.order,
     answeredAt: task.answeredAt,
     createdAt: task.createdAt,

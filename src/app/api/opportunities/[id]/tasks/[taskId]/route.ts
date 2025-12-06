@@ -301,7 +301,7 @@ export async function PUT(
     console.error("Error updating task:", error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation error", details: error.errors },
+        { error: "Validation error", details: error.issues },
         { status: 400 }
       );
     }

@@ -987,6 +987,9 @@ model DataSyncMethod {
   requestSchema  Json?    // JSON schema for the request body
   responseSchema Json?    // JSON schema for the expected response
   headers        Json?    // Custom headers for the request
+  syncInterval   String?  @default("30min") // Cron job interval: "5min", "10min", "30min", "2h", "6h", "12h", "24h"
+  connectionStatus String? @default("untested") // "untested", "success", "failed"
+  lastTestedAt   DateTime? // When the connection was last tested
   isActive       Boolean  @default(true)
   lastSyncedAt   DateTime?
   createdAt      DateTime @default(now())

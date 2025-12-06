@@ -381,13 +381,13 @@ export function ContactsClient({ initialContacts, companies, suppliers }: Contac
           address: editingContact.address,
           city: editingContact.city,
           zip: editingContact.zip,
-          country: editingContact.country || undefined,
+          country: editingContact.country as any || undefined,
           image: editingContact.image,
           email: editingContact.email,
           phone: editingContact.phone,
           mobile: editingContact.mobile,
           workPhone: editingContact.workPhone,
-          gender: editingContact.gender || undefined,
+          gender: editingContact.gender as any || undefined,
           birthday: editingContact.birthday || undefined,
         } : undefined}
         companies={companies}

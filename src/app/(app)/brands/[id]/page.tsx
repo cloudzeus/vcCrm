@@ -107,7 +107,13 @@ export default async function BrandDetailPage({
         campaignCount: brand._count.campaigns,
         contactCount: brand._count.contacts,
         productCount: brand._count.products,
-        campaigns: brand.campaigns,
+        campaigns: brand.campaigns.map((c) => ({
+          id: c.id,
+          name: c.name,
+          status: c.status,
+          startDate: c.startDate?.toISOString() || null,
+          endDate: c.endDate?.toISOString() || null,
+        })),
         contacts: contacts.map((c) => ({
           id: c.id,
           name: c.name,

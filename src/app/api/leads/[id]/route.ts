@@ -139,14 +139,14 @@ export async function PUT(
       updateData.description = validatedData.description || null;
     if (validatedData.status !== undefined) {
       updateData.status = validatedData.status;
-      if (validatedData.status === CrmStatus.WON || validatedData.status === CrmStatus.LOST) {
+      if (validatedData.status === "WON" || validatedData.status === "LOST") {
         updateData.closedAt = new Date();
-      } else if (existingRecord.closedAt && validatedData.status !== CrmStatus.WON && validatedData.status !== CrmStatus.LOST) {
+      } else if (existingRecord.closedAt) {
         updateData.closedAt = null;
       }
     }
     if (validatedData.companyId !== undefined)
-      updateData.companyId = validatedData.companyId;
+      updateData.company = { connect: { id: validatedData.companyId } };
     if (validatedData.valueEstimate !== undefined)
       updateData.valueEstimate = validatedData.valueEstimate || null;
     if (validatedData.expectedClose !== undefined)

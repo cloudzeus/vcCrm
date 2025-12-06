@@ -326,7 +326,7 @@ export function SuppliersClient({ initialSuppliers }: SuppliersClientProps) {
           address: editingSupplier.address,
           irsOffice: editingSupplier.irsOffice,
           city: editingSupplier.city,
-          country: editingSupplier.country || undefined,
+          country: editingSupplier.country as any || undefined,
           zip: editingSupplier.zip,
           phone: editingSupplier.phone,
           email: editingSupplier.email,

@@ -17,7 +17,7 @@ export default async function DashboardPage() {
   }
 
   const user = await getCurrentUserOrThrow();
-  
+
   // For SUPERADMIN without org, we'll get the first org or handle gracefully
   let organization;
   try {
@@ -31,7 +31,7 @@ export default async function DashboardPage() {
       throw error;
     }
   }
-  
+
   if (!organization) {
     // Show empty state for SUPERADMIN without org
     return (
@@ -473,7 +473,7 @@ export default async function DashboardPage() {
       REVIEW: 0,
       DONE: 0,
     };
-    
+
     opp.opportunityTasks.forEach((task) => {
       const taskStatus = task.status.toUpperCase();
       if (taskStatus === "TODO") {
@@ -520,7 +520,7 @@ export default async function DashboardPage() {
           } : null,
         }));
 
-        const contactActivities = recentContacts.map((contact) => ({
+        const contactActivities = recentContacts.map((contact: any) => ({
           id: `contact-${contact.id}`,
           type: "contact",
           title: `${contact.name} ${contact.lastName || ""}`.trim(),
@@ -529,11 +529,11 @@ export default async function DashboardPage() {
           user: null, // Contact doesn't have creator field
         }));
 
-        const taskActivities = recentTasks.map((task) => ({
+        const taskActivities = recentTasks.map((task: any) => ({
           id: `task-${task.id}`,
           type: "task",
           title: task.title,
-          description: `Task created - ${task.status.toLowerCase()}${task.assignedToName ? ` - Assigned to ${task.assignedToName}` : ""}`,
+          description: `Task created - ${task.status.toLowerCase()}${task.assignedTo?.name ? ` - Assigned to ${task.assignedTo.name}` : ""}`,
           date: task.createdAt,
           user: null, // Task doesn't have creator field
         }));
@@ -552,7 +552,7 @@ export default async function DashboardPage() {
           const updatedAt = new Date(user.updatedAt);
           const timeDiff = updatedAt.getTime() - createdAt.getTime();
           const isNew = timeDiff < 5000; // Less than 5 seconds difference = creation
-          
+
           // Add creation activity if user was created recently
           if (isNew) {
             activities.push({
@@ -619,8 +619,8 @@ export default async function DashboardPage() {
         description: task.description,
       }))}
       recentCustomers={(recentCustomers || [])
-        .filter((customer) => customer.name && customer.name.trim() !== "")
-        .map((customer) => ({
+        .filter((customer: any) => customer.name && customer.name.trim() !== "")
+        .map((customer: any) => ({
           id: customer.id,
           name: customer.name,
           email: customer.email,
@@ -638,7 +638,7 @@ export default async function DashboardPage() {
         logoUrl: supplier.logoUrl,
         createdAt: supplier.createdAt,
       }))}
-      recentContacts={(recentContacts || []).map((contact) => ({
+      recentContacts={(recentContacts || []).map((contact: any) => ({
         id: contact.id,
         name: contact.name,
         lastName: contact.lastName,
@@ -656,17 +656,17 @@ export default async function DashboardPage() {
           REVIEW: 0,
           DONE: 0,
         };
-        
+
         // Use recentTasks which we know has data, or allTasksForStatus if available
         const tasksToCount = (recentTasks && recentTasks.length > 0)
           ? recentTasks.map((t: any) => ({ status: t.status }))
           : (allTasksForStatus || []);
-        
+
         (tasksToCount || []).forEach((task: any) => {
           // Get status value - handle both string and enum
           const rawStatus = task.status;
           const status = String(rawStatus || '').toUpperCase().trim();
-          
+
           // Map status values - handle exact matches
           if (status === 'TODO') {
             statusMap['TODO']++;
@@ -678,7 +678,7 @@ export default async function DashboardPage() {
             statusMap['DONE']++;
           }
         });
-        
+
         const data = [
           {
             name: "To Do",
@@ -701,7 +701,7 @@ export default async function DashboardPage() {
             color: "#85A3B2",
           },
         ];
-        
+
         return data.filter((item) => item.value > 0);
       })()}
     />

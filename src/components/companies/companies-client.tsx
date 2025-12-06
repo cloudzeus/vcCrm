@@ -117,7 +117,7 @@ export function CompaniesClient({ initialCompanies }: CompaniesClientProps) {
     toast.success(editingCompany ? "Company updated" : "Company created");
     setIsModalOpen(false);
     setEditingCompany(null);
-    
+
     // Refresh to ensure server state is synced
     router.refresh();
   };
@@ -150,7 +150,7 @@ export function CompaniesClient({ initialCompanies }: CompaniesClientProps) {
         const name = row.original.name;
         const truncatedName = name.length > 45 ? `${name.substring(0, 45)}...` : name;
         const hasFullName = name.length > 45;
-        
+
         return (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -177,7 +177,7 @@ export function CompaniesClient({ initialCompanies }: CompaniesClientProps) {
         }
         const truncatedTitle = commercialTitle.length > 45 ? `${commercialTitle.substring(0, 45)}...` : commercialTitle;
         const hasFullTitle = commercialTitle.length > 45;
-        
+
         return (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -360,7 +360,7 @@ export function CompaniesClient({ initialCompanies }: CompaniesClientProps) {
           address: editingCompany.address,
           irsOffice: editingCompany.irsOffice,
           city: editingCompany.city,
-          country: editingCompany.country || undefined,
+          country: editingCompany.country as any || undefined,
           zip: editingCompany.zip,
           phone: editingCompany.phone,
           email: editingCompany.email,

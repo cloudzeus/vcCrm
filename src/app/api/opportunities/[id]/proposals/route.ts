@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const updateProposalSchema = z.object({
+  proposalId: z.string().optional(),
   title: z.string().min(1).optional(),
   content: z.string().optional(),
   scope: z.string().optional().nullable(),
@@ -124,7 +125,7 @@ export async function PUT(
     console.error("Error updating proposal:", error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation error", details: error.errors },
+        { error: "Validation error", details: error.issues },
         { status: 400 }
       );
     }

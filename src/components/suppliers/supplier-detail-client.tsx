@@ -662,7 +662,7 @@ export function SupplierDetailClient({
                                               return (
                                                 <div className="rounded-lg border bg-background px-2 py-1.5 text-xs shadow-xl">
                                                   <div className="font-light">
-                                                    {statusLabels[statusName] || statusName}: {value}
+                                                    {statusLabels[statusName as keyof typeof statusLabels] || statusName}: {value}
                                                   </div>
                                                 </div>
                                               );
@@ -854,7 +854,7 @@ export function SupplierDetailClient({
           address: supplier.address,
           irsOffice: supplier.irsOffice,
           city: supplier.city,
-          country: supplier.country || undefined,
+          country: supplier.country as any || undefined,
           zip: supplier.zip,
           phone: supplier.phone,
           email: supplier.email,

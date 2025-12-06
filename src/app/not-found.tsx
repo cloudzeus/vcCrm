@@ -1,7 +1,3 @@
-"use client";
-
-// Minimal not-found page that doesn't use any React context or hooks
-// This prevents build errors during prerender
 export default function NotFound() {
   return (
     <html>

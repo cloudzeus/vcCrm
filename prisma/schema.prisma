@@ -1021,6 +1021,11 @@ model Proposal {
   status           ProposalStatus @default(DRAFT)
   totalAmount      Float          @default(0)
   version          Int            @default(1)
+  sentAt           DateTime?
+  acceptedAt       DateTime?
+  rejectedAt       DateTime?
+  reviewedAt       DateTime?
+  reviewedBy       String?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 

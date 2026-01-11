@@ -1013,8 +1013,14 @@ model Proposal {
   title            String
   shortDescription String?        @db.Text
   content          String?        @db.Text // AI Generated content
+  scope            String?        @db.Text
+  deliverables     String?        @db.Text
+  pricing          String?        @db.Text
+  timeline         String?        @db.Text
+  terms            String?        @db.Text
   status           ProposalStatus @default(DRAFT)
   totalAmount      Float          @default(0)
+  version          Int            @default(1)
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 

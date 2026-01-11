@@ -108,8 +108,8 @@ ${crmRecord.contacts.map((cc) => `- ${cc.contact.name}${cc.role ? ` (${cc.role})
 
 ANSWERS TO CLARIFICATION QUESTIONS:
 ${crmRecord.opportunityTasks
-  .map((task, idx) => `${idx + 1}. ${task.question}\n   Answer: ${task.answer || "No answer provided"}`)
-  .join("\n\n")}
+        .map((task, idx) => `${idx + 1}. ${task.question}\n   Answer: ${task.answer || "No answer provided"}`)
+        .join("\n\n")}
 `;
 
     // Generate proposal using OpenAI
@@ -203,6 +203,8 @@ Return ONLY the JSON object, no additional text.`;
     // Create the proposal
     const proposal = await prisma.proposal.create({
       data: {
+        organizationId: organization.id,
+        companyId: crmRecord.companyId,
         crmRecordId: id,
         title: proposalData.title || `${crmRecord.title} - Proposal`,
         content: proposalData.content || "",

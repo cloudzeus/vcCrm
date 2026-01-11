@@ -947,7 +947,6 @@ export function CompanyDetailClient({
           }
         }}
         initialData={editingContact ? {
-          id: editingContact.id,
           name: editingContact.name,
           lastName: editingContact.lastName,
           companyId: currentCompany.id,

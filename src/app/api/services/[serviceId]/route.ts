@@ -5,23 +5,24 @@ import { getCurrentUserOrThrow, getOrganizationOrThrow } from "@/lib/auth-helper
 // PUT /api/services/[serviceId]
 export async function PUT(
     req: Request,
-    { params }: { params: { serviceId: string } }
+    { params }: { params: Promise<{ serviceId: string }> }
 ) {
     try {
+        const { serviceId } = await params;
         const user = await getCurrentUserOrThrow();
         const organization = await getOrganizationOrThrow();
         const body = await req.json();
 
         const { code, description, image } = body;
 
-        if (!params.serviceId) {
+        if (!serviceId) {
             return new NextResponse("Service ID is required", { status: 400 });
         }
 
         // Verify ownership
         const existingService = await prisma.service.findUnique({
             where: {
-                id: params.serviceId,
+                id: serviceId,
                 organizationId: organization.id,
             },
         });
@@ -32,7 +33,7 @@ export async function PUT(
 
         const service = await prisma.service.update({
             where: {
-                id: params.serviceId,
+                id: serviceId,
             },
             data: {
                 code,
@@ -51,20 +52,21 @@ export async function PUT(
 // DELETE /api/services/[serviceId]
 export async function DELETE(
     req: Request,
-    { params }: { params: { serviceId: string } }
+    { params }: { params: Promise<{ serviceId: string }> }
 ) {
     try {
+        const { serviceId } = await params;
         const user = await getCurrentUserOrThrow();
         const organization = await getOrganizationOrThrow();
 
-        if (!params.serviceId) {
+        if (!serviceId) {
             return new NextResponse("Service ID is required", { status: 400 });
         }
 
         // Verify ownership
         const existingService = await prisma.service.findUnique({
             where: {
-                id: params.serviceId,
+                id: serviceId,
                 organizationId: organization.id,
             },
         });
@@ -75,7 +77,7 @@ export async function DELETE(
 
         await prisma.service.delete({
             where: {
-                id: params.serviceId,
+                id: serviceId,
             },
         });
 

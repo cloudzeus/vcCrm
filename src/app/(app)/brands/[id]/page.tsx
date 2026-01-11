@@ -64,10 +64,10 @@ export default async function BrandDetailPage({
       where: {
         brandId: id,
       },
-      orderBy: {
-        isPrimary: "desc",
-        createdAt: "desc",
-      },
+      orderBy: [
+        { isPrimary: "desc" },
+        { createdAt: "desc" },
+      ],
     }),
     prisma.brandProduct.findMany({
       where: {
@@ -136,6 +136,8 @@ export default async function BrandDetailPage({
     />
   );
 }
+
+
 
 
 

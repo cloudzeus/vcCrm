@@ -50,6 +50,7 @@ import {
   ChartConfig,
 } from "@/components/ui/chart";
 import { useConfirm } from "@/hooks/use-confirm";
+import { ProposalModal } from "@/components/forms/proposal-modal";
 
 interface CompanyDetail {
   id: string;
@@ -113,10 +114,10 @@ interface Opportunity {
 interface Proposal {
   id: string;
   title: string | null;
-  version: number;
+  totalAmount: number;
   status: string;
-  crmRecordId: string;
-  crmRecordTitle: string;
+  crmRecordId?: string;
+  crmRecordTitle?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -170,6 +171,7 @@ export function CompanyDetailClient({
   const [fileDescription, setFileDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
 
   // Prevent hydration mismatch by only rendering Tabs after client-side mount
   useEffect(() => {
@@ -704,34 +706,70 @@ export function CompanyDetailClient({
                 </TabsContent>
 
                 <TabsContent value="proposals" className="mt-0">
+                  <div className="flex items-center justify-between mb-3">
+                    <CardDescription className="text-xs">
+                      Proposals for this company
+                    </CardDescription>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsProposalModalOpen(true)}
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1.5" />
+                      Create Proposal
+                    </Button>
+                  </div>
                   {proposals.length > 0 ? (
                     <div className="space-y-2">
                       {proposals.map((proposal) => (
-                        <Link key={proposal.id} href={`/leads/${proposal.crmRecordId}`}>
+                        <div key={proposal.id} onClick={() => router.push(proposal.crmRecordId ? `/leads/${proposal.crmRecordId}` : '#')}>
                           <Card className="p-3 border-gray-200 hover:border-[#85A3B2] transition-colors cursor-pointer">
                             <div className="flex items-center justify-between">
                               <div className="flex-1 min-w-0">
                                 <p className="text-xs font-light truncate">
-                                  {proposal.title || proposal.crmRecordTitle}
+                                  {proposal.title}
                                 </p>
                                 <p className="text-[10px] text-muted-foreground mt-1">
-                                  Version {proposal.version} • {proposal.crmRecordTitle}
+                                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(proposal.totalAmount)}
+                                  {proposal.crmRecordTitle && ` • Related to: ${proposal.crmRecordTitle}`}
                                 </p>
                               </div>
-                              <Badge variant="outline" className="text-[10px]">
-                                {proposal.status}
-                              </Badge>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-[10px]">
+                                  {proposal.status}
+                                </Badge>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.open(`/api/proposals/${proposal.id}/export`, "_blank");
+                                  }}
+                                  title="Download Word Doc"
+                                >
+                                  <Download className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </div>
                           </Card>
-                        </Link>
+                        </div>
                       ))}
                     </div>
                   ) : (
                     <div className="text-center py-8">
                       <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-xs text-muted-foreground font-light">
+                      <p className="text-xs text-muted-foreground font-light mb-3">
                         No proposals for this company
                       </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsProposalModalOpen(true)}
+                      >
+                        <Plus className="h-3.5 w-3.5 mr-1.5" />
+                        Create Proposal
+                      </Button>
                     </div>
                   )}
                 </TabsContent>

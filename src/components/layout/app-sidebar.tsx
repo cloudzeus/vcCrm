@@ -27,6 +27,7 @@ import {
   TrendingUp,
   UserCog,
   Video,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,9 @@ import {
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ProfileEditModal } from "@/components/forms/profile-edit-modal";
+import { LicenseModal } from "@/components/modals/license-modal";
+import { getLicenseInfo } from "@/actions/get-license-info";
+import { useEffect } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -93,6 +97,16 @@ const mainMenuItems = [
     href: "/leads",
   },
   {
+    title: "Proposals",
+    icon: FileText,
+    href: "/proposals",
+  },
+  {
+    title: "Lead Tasks",
+    icon: CheckSquare,
+    href: "/lead-tasks",
+  },
+  {
     title: "Campaigns",
     icon: Megaphone,
     href: "/campaigns",
@@ -106,6 +120,11 @@ const mainMenuItems = [
     title: "Brands",
     icon: Building2,
     href: "/brands",
+  },
+  {
+    title: "Services",
+    icon: Briefcase,
+    href: "/services",
   },
   {
     title: "Reports",
@@ -147,6 +166,27 @@ export function AppSidebar({ user }: AppSidebarProps) {
   const [marketingOpen, setMarketingOpen] = useState(true);
   const [dataSyncOpen, setDataSyncOpen] = useState(true);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
+  const [licenseInfo, setLicenseInfo] = useState<{
+    serialNumber?: string;
+    ownerName?: string;
+    ownerVat?: string;
+    vendorName?: string;
+    vendorVat?: string;
+    date?: string;
+  }>({});
+
+  useEffect(() => {
+    const fetchLicense = async () => {
+      try {
+        const info = await getLicenseInfo();
+        setLicenseInfo(info);
+      } catch (error) {
+        console.error("Failed to fetch license info:", error);
+      }
+    };
+    fetchLicense();
+  }, []);
 
   const initials = user?.name
     ?.split(" ")
@@ -325,6 +365,13 @@ export function AppSidebar({ user }: AppSidebarProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40">
                 <DropdownMenuItem
+                  onClick={() => setIsLicenseModalOpen(true)}
+                  className="text-xs font-light cursor-pointer"
+                >
+                  <Star className="h-3 w-3 mr-2" />
+                  License
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   onClick={handleEditProfile}
                   className="text-xs font-light cursor-pointer"
                 >
@@ -350,6 +397,11 @@ export function AppSidebar({ user }: AppSidebarProps) {
         open={isProfileModalOpen}
         onOpenChange={setIsProfileModalOpen}
         initialData={user}
+      />
+      <LicenseModal
+        open={isLicenseModalOpen}
+        onOpenChange={setIsLicenseModalOpen}
+        licenseInfo={licenseInfo}
       />
     </Sidebar>
   );

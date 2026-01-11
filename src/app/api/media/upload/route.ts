@@ -148,6 +148,14 @@ export async function POST(request: Request) {
       sizeBytes: mediaAsset.sizeBytes,
       isPrimary: mediaAsset.isPrimary,
       createdAt: mediaAsset.createdAt,
+      // Compatibility with FileUpload component
+      attachment: {
+        id: mediaAsset.id,
+        filename: mediaAsset.filename,
+        url: mediaAsset.url,
+        mimeType: mediaAsset.mimeType,
+        sizeBytes: mediaAsset.sizeBytes,
+      }
     });
   } catch (error) {
     console.error("Media upload error:", error);

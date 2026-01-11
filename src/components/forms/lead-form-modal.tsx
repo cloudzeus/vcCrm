@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -121,7 +122,7 @@ export function LeadFormModal({
         outcome: data.outcome === "" ? undefined : data.outcome,
       };
       const result = await onSubmit(submitData);
-      
+
       // If status is OPPORTUNITY, show question generation option
       if (data.status === "OPPORTUNITY" && result) {
         setSavedLeadId(result.id);
@@ -158,7 +159,7 @@ export function LeadFormModal({
 
       const result = await response.json();
       toast.success(`Generated ${result.count} questions successfully`);
-      
+
       // Close modal and redirect to lead detail page
       onOpenChange(false);
       router.push(`/leads/${opportunityId}`);
@@ -180,7 +181,7 @@ export function LeadFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -231,7 +232,31 @@ export function LeadFormModal({
                   )}
                 />
 
-                <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="companyId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Company *</FormLabel>
+                      <FormControl>
+                        <Combobox
+                          options={companies.map((c) => ({
+                            value: c.id,
+                            label: c.name.length > 40 ? c.name.substring(0, 40) + "..." : c.name,
+                          }))}
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Select company"
+                          searchPlaceholder="Search companies..."
+                          emptyMessage="No company found."
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <FormField
                     control={form.control}
                     name="status"
@@ -267,37 +292,6 @@ export function LeadFormModal({
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="companyId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Company *</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select company" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {companies.map((company) => (
-                              <SelectItem key={company.id} value={company.id}>
-                                {company.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="valueEstimate"
@@ -424,9 +418,9 @@ export function LeadFormModal({
                 >
                   Cancel
                 </Button>
-                <Button 
-                  type="submit" 
-                  disabled={loading || showQuestionGeneration} 
+                <Button
+                  type="submit"
+                  disabled={loading || showQuestionGeneration}
                   className="bg-[#142030] hover:bg-[#142030]/90 text-white"
                 >
                   {loading ? "Saving..." : initialData ? "Update Lead" : "Create Lead"}

@@ -22,6 +22,20 @@ async function main() {
 
   console.log("✅ Created SUPERADMIN user:", superAdmin.email);
 
+  // Create Kolleris SUPERADMIN user
+  const kollerisAdmin = await prisma.user.upsert({
+    where: { email: "admin@kolleris.gr" },
+    update: {},
+    create: {
+      email: "admin@kolleris.gr",
+      name: "Kolleris Admin",
+      passwordHash: await bcrypt.hash("admin123", 10),
+      role: "SUPERADMIN",
+    },
+  });
+
+  console.log("✅ Created Kolleris SUPERADMIN user:", kollerisAdmin.email);
+
   // Create a test organization
   const organization = await prisma.organization.upsert({
     where: { slug: "demo-agency" },

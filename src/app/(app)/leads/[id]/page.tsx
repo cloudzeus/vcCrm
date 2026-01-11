@@ -21,7 +21,7 @@ export default async function LeadDetailPage({
   const { id } = await params;
 
   const [crmRecord, companies, suppliers, allUsers] = await Promise.all([
-    prisma.crmRecord.findFirst({
+    (prisma.crmRecord as any).findFirst({
       where: {
         id,
         organizationId: organization.id,
@@ -111,6 +111,11 @@ export default async function LeadDetailPage({
             { createdAt: "asc" },
           ],
         },
+        proposals: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
       },
     }),
     prisma.company.findMany({
@@ -190,7 +195,7 @@ export default async function LeadDetailPage({
     outcome: crmRecord.outcome || undefined,
     closedAt: crmRecord.closedAt || undefined,
     contactCount: crmRecord.contacts.length,
-    contacts: crmRecord.contacts.map((crc) => ({
+    contacts: crmRecord.contacts.map((crc: any) => ({
       id: crc.contact.id,
       name: crc.contact.name,
       lastName: crc.contact.lastName || "",
@@ -203,12 +208,20 @@ export default async function LeadDetailPage({
       isCompanyContact: !!crc.contact.companyId,
       isSupplierContact: !!crc.contact.supplierId,
     })),
+    proposals: ((crmRecord as any).proposals || []).map((p: any) => ({
+      id: p.id,
+      title: p.title,
+      totalAmount: p.totalAmount,
+      status: p.status,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
+    })),
     createdAt: crmRecord.createdAt,
     updatedAt: crmRecord.updatedAt,
   };
 
   // Extract company contacts
-  const companyContacts = (crmRecord.company?.contacts || []).map((contact) => ({
+  const companyContacts = (crmRecord.company?.contacts || []).map((contact: any) => ({
     id: contact.id,
     name: contact.name,
     lastName: contact.lastName,
@@ -235,7 +248,7 @@ export default async function LeadDetailPage({
   }));
 
   // Map tasks
-  const tasksData = crmRecord.opportunityTasks.map((task) => ({
+  const tasksData = crmRecord.opportunityTasks.map((task: any) => ({
     id: task.id,
     title: task.title,
     question: task.question || "",
@@ -271,7 +284,7 @@ export default async function LeadDetailPage({
     createdAt: task.createdAt,
     updatedAt: task.updatedAt,
     crmRecordId: task.crmRecordId,
-    attachments: task.attachments.map((att) => ({
+    attachments: task.attachments.map((att: any) => ({
       id: att.id,
       filename: att.filename,
       url: att.url,
@@ -283,7 +296,7 @@ export default async function LeadDetailPage({
   // Calculate task counts
   const taskCount = crmRecord.opportunityTasks.length;
   const completedTaskCount = crmRecord.opportunityTasks.filter(
-    (task) => task.status === "DONE"
+    (task: any) => task.status === "DONE"
   ).length;
 
   // Collect all available contacts for task assignment:
@@ -301,8 +314,8 @@ export default async function LeadDetailPage({
     })),
     // Company contacts (excluding already added)
     ...companyContacts
-      .filter((cc) => !lead.contacts.some((lc) => lc.id === cc.id))
-      .map((cc) => ({
+      .filter((cc: any) => !lead.contacts.some((lc) => lc.id === cc.id))
+      .map((cc: any) => ({
         id: cc.id,
         name: cc.name,
         email: cc.email || null,

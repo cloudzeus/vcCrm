@@ -348,9 +348,31 @@ model Organization {
   contacts Contact[]
   crmRecords CrmRecord[]
   opportunityAttachments OpportunityAttachment[]
+  services Service[]
+  proposals Proposal[]
   dataSyncs DataSync[]
 
   @@index([slug])
+}
+
+/// =====================
+/// SERVICE MODEL
+/// =====================
+model Service {
+  id             String       @id @default(cuid())
+  organizationId String
+  code           String
+  description    String       @db.Text
+  image          String?      @db.Text
+  price          Float?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  proposalItems  ProposalItem[]
+
+  @@index([organizationId])
+  @@index([code])
 }
 
 model Account {
@@ -713,6 +735,7 @@ model Company {
   crmRecords     CrmRecord[]
   opportunityTasks OpportunityTask[] // Tasks/questions associated with this company
   attachments    OpportunityAttachment[] // Generic files attached to this company
+  proposals      Proposal[]
 
   @@index([organizationId])
   @@index([country])
@@ -829,8 +852,8 @@ model CrmRecord {
   company       Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
   contacts      CrmRecordContact[] // All participants (contacts) for this record/deal
   opportunityTasks OpportunityTask[] // Questions/tasks for this opportunity
-  proposals     Proposal[] // Generated proposals for this opportunity
-  attachments   OpportunityAttachment[] // Files attached to this opportunity
+  proposals        Proposal[] // Generated proposals for this opportunity
+  attachments      OpportunityAttachment[] // Files attached to this opportunity
 
   @@index([organizationId])
   @@index([companyId])
@@ -901,30 +924,7 @@ model OpportunityTask {
   @@index([reminderDate])
 }
 
-model Proposal {
-  id                String   @id @default(cuid())
-  crmRecordId      String   // The opportunity (CrmRecord with status OPPORTUNITY)
-  title             String
-  content           String   @db.Text // The generated proposal content
-  scope             String?  @db.Text
-  deliverables      String?  @db.Text
-  pricing           String?  @db.Text
-  timeline          String?  @db.Text
-  terms             String?  @db.Text
-  status            String   @default("DRAFT") // DRAFT, REVIEW, APPROVED, SENT, ACCEPTED, REJECTED
-  version           Int      @default(1)
-  generatedAt       DateTime @default(now())
-  sentAt            DateTime?
-  reviewedBy        String?  // User ID who reviewed
-  reviewedAt        DateTime?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
 
-  crmRecord        CrmRecord @relation(fields: [crmRecordId], references: [id], onDelete: Cascade)
-
-  @@index([crmRecordId])
-  @@index([status])
-}
 
 model OpportunityAttachment {
   id              String    @id @default(cuid())
@@ -999,4 +999,54 @@ model DataSyncMethod {
 
   @@index([dataSyncId])
   @@index([name])
+}
+
+/// =====================
+/// PROPOSAL MODELS
+/// =====================
+
+model Proposal {
+  id               String         @id @default(cuid())
+  organizationId   String
+  crmRecordId      String?        // Optional: linked to a specific deal/lead
+  companyId        String         // Required: linked to a customer
+  title            String
+  shortDescription String?        @db.Text
+  content          String?        @db.Text // AI Generated content
+  status           ProposalStatus @default(DRAFT)
+  totalAmount      Float          @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  organization     Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  crmRecord        CrmRecord?     @relation(fields: [crmRecordId], references: [id], onDelete: SetNull)
+  company          Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  items            ProposalItem[]
+
+  @@index([organizationId])
+  @@index([crmRecordId])
+  @@index([companyId])
+}
+
+model ProposalItem {
+  id          String   @id @default(cuid())
+  proposalId  String
+  serviceId   String
+  quantity    Int
+  price       Float
+  total       Float
+  
+  proposal    Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  service     Service  @relation(fields: [serviceId], references: [id])
+
+  @@index([proposalId])
+  @@index([serviceId])
+}
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  REVISED
+  ACCEPTED
+  DECLINED
 }

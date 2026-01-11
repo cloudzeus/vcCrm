@@ -20,10 +20,13 @@ import {
   Clock,
   Plus,
   X,
+  Download,
+  FileText,
 } from "lucide-react";
 import { format } from "date-fns";
 import { LeadFormModal } from "@/components/forms/lead-form-modal";
 import { ContactFormModal } from "@/components/forms/contact-form-modal";
+import { ProposalModal } from "@/components/forms/proposal-modal";
 import {
   Dialog,
   DialogContent,
@@ -189,7 +192,7 @@ export function LeadDetailClient({
       }
 
       const allOrgContacts = await response.json();
-      
+
       // Filter out contacts already in the lead
       const existingContactIds = lead.contacts.map(c => c.id);
       const availableContactsList = allOrgContacts.filter(
@@ -201,7 +204,7 @@ export function LeadDetailClient({
         const displayName = `${contact.name} ${contact.lastName || ""}`.trim();
         const emailText = contact.email ? ` (${contact.email})` : "";
         const label = `${displayName}${emailText}`;
-        
+
         let group = "Other Contacts";
         if (contact.company) {
           group = `Company - ${contact.company.name}`;
@@ -492,11 +495,11 @@ export function LeadDetailClient({
                     <Calendar className="h-4 w-4" />
                     {lead.expectedClose
                       ? format(
-                          typeof lead.expectedClose === "string"
-                            ? new Date(lead.expectedClose)
-                            : lead.expectedClose,
-                          "MMM d, yyyy"
-                        )
+                        typeof lead.expectedClose === "string"
+                          ? new Date(lead.expectedClose)
+                          : lead.expectedClose,
+                        "MMM d, yyyy"
+                      )
                       : "-"}
                   </p>
                 </div>
@@ -522,6 +525,59 @@ export function LeadDetailClient({
                     )}
                   </p>
                 </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Proposals Card */}
+          <Card className="border-dotted border-gray-200 shadow-sm bg-white">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xs font-light flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Proposals ({lead.proposals?.length || 0})
+                </CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsProposalModalOpen(true)}
+                  className="text-xs"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Create Proposal
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {(lead.proposals && lead.proposals.length > 0) ? (
+                <div className="space-y-2">
+                  {lead.proposals.map(proposal => (
+                    <div key={proposal.id} className="flex items-center justify-between p-3 border rounded-md border-gray-100 hover:bg-gray-50 transition-colors">
+                      <div className="flex-1">
+                        <p className="text-xs font-medium">{proposal.title}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(proposal.totalAmount)}
+                          {" • "}
+                          {format(new Date(proposal.createdAt), "MMM d, yyyy")}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-[10px]">{proposal.status}</Badge>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => window.open(`/api/proposals/${proposal.id}/export`, "_blank")}
+                          title="Download"
+                        >
+                          <Download className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground text-center py-4">No proposals created yet.</p>
               )}
             </CardContent>
           </Card>
@@ -628,7 +684,7 @@ export function LeadDetailClient({
                     const isCompanyContact = contact.isCompanyContact || !!contact.companyName;
                     const isSupplierContact = contact.isSupplierContact || !!contact.supplierName;
                     const sourceName = contact.companyName || contact.supplierName || null;
-                    
+
                     return (
                       <motion.div
                         key={contact.id}
@@ -640,8 +696,8 @@ export function LeadDetailClient({
                           isCompanyContact
                             ? "border-[#85A3B2]/30 hover:border-[#85A3B2] hover:bg-[#85A3B2]/10"
                             : isSupplierContact
-                            ? "border-[#732553]/30 hover:border-[#732553] hover:bg-[#732553]/10"
-                            : "border-[#85A3B2]/30 hover:border-[#85A3B2] hover:bg-[#85A3B2]/10"
+                              ? "border-[#732553]/30 hover:border-[#732553] hover:bg-[#732553]/10"
+                              : "border-[#85A3B2]/30 hover:border-[#85A3B2] hover:bg-[#85A3B2]/10"
                         )}
                       >
                         <div className="space-y-0.5 flex-1 min-w-0">
@@ -654,8 +710,8 @@ export function LeadDetailClient({
                               isCompanyContact
                                 ? "text-[#85A3B2]"
                                 : isSupplierContact
-                                ? "text-[#732553]"
-                                : "text-muted-foreground"
+                                  ? "text-[#732553]"
+                                  : "text-muted-foreground"
                             )}>
                               {isCompanyContact ? "Company" : "Supplier"}: {sourceName}
                             </p>
@@ -767,8 +823,8 @@ export function LeadDetailClient({
           valueEstimate: lead.valueEstimate,
           expectedClose: lead.expectedClose
             ? (typeof lead.expectedClose === "string"
-                ? lead.expectedClose.split("T")[0]
-                : lead.expectedClose.toISOString().split("T")[0])
+              ? lead.expectedClose.split("T")[0]
+              : lead.expectedClose.toISOString().split("T")[0])
             : undefined,
           outcome: lead.outcome,
         }}
@@ -799,18 +855,22 @@ export function LeadDetailClient({
           priority: editingTask.priority,
           startDate: editingTask.startDate
             ? (typeof editingTask.startDate === "string"
-                ? editingTask.startDate.split("T")[0]
-                : new Date(editingTask.startDate).toISOString().split("T")[0])
+              ? editingTask.startDate.split("T")[0]
+              : editingTask.startDate instanceof Date
+                ? editingTask.startDate.toISOString().split("T")[0]
+                : "")
             : undefined,
           dueDate: editingTask.dueDate
             ? (typeof editingTask.dueDate === "string"
-                ? editingTask.dueDate.split("T")[0]
-                : new Date(editingTask.dueDate).toISOString().split("T")[0])
+              ? editingTask.dueDate.split("T")[0]
+              : editingTask.dueDate instanceof Date
+                ? editingTask.dueDate.toISOString().split("T")[0]
+                : "")
             : undefined,
           reminderDate: editingTask.reminderDate
             ? (typeof editingTask.reminderDate === "string"
-                ? editingTask.reminderDate.split("T")[0]
-                : new Date(editingTask.reminderDate).toISOString().split("T")[0])
+              ? editingTask.reminderDate.split("T")[0]
+              : new Date(editingTask.reminderDate).toISOString().split("T")[0])
             : undefined,
         } : undefined}
       />

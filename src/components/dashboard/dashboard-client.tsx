@@ -254,17 +254,17 @@ export function DashboardClient({
 }: DashboardClientProps) {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  
+
   // Ensure arrays are defined
   const safeRecentCustomers = recentCustomers || [];
   const safeRecentSuppliers = recentSuppliers || [];
   const safeTaskStatusData = taskStatusData || [];
-  
+
   // Prevent hydration mismatch by only rendering charts after client-side mount
   useEffect(() => {
     setMounted(true);
   }, []);
-  
+
   // Calculate growth percentages (mock data for now)
   const revenueGrowth = 12.5;
   const campaignsGrowth = 8.3;
@@ -390,8 +390,8 @@ export function DashboardClient({
 
   // Filter and format posts for the current range
   const filteredPosts = upcomingPosts.filter((post) => {
-    const postDate = typeof post.scheduledAt === "string" 
-      ? new Date(post.scheduledAt) 
+    const postDate = typeof post.scheduledAt === "string"
+      ? new Date(post.scheduledAt)
       : post.scheduledAt;
     return postDate >= currentRange.start && postDate <= currentRange.end;
   });
@@ -402,8 +402,8 @@ export function DashboardClient({
     </div>
   ) : (
     filteredPosts.map((post, index) => {
-      const date = typeof post.scheduledAt === "string" 
-        ? new Date(post.scheduledAt) 
+      const date = typeof post.scheduledAt === "string"
+        ? new Date(post.scheduledAt)
         : post.scheduledAt;
       const platformColor = getPlatformColor(post.platform);
       return (
@@ -535,7 +535,7 @@ export function DashboardClient({
           transition={{ delay: 4 * 0.05, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
         >
           <Card className="border-border/50 shadow-sm hover:shadow-md transition-all duration-200 group bg-gradient-to-br from-white to-[#85A3B2]/8 p-2 cursor-pointer"
-            onClick={() => router.push("/app/leads")}
+            onClick={() => router.push("/leads")}
           >
             <div className="flex items-center justify-between mb-1">
               <CardTitle className="text-xs font-light text-muted-foreground uppercase tracking-wide">
@@ -703,10 +703,10 @@ export function DashboardClient({
                           index === 0
                             ? chartColors.primary
                             : index === 1
-                            ? chartColors.secondary
-                            : index === 2
-                            ? chartColors.accent
-                            : "hsl(var(--muted))"
+                              ? chartColors.secondary
+                              : index === 2
+                                ? chartColors.accent
+                                : "hsl(var(--muted))"
                         }
                       />
                     ))}
@@ -743,7 +743,7 @@ export function DashboardClient({
                         const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
                         const x = cx + radius * Math.cos(-midAngle * RADIAN);
                         const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                        
+
                         return (
                           <text
                             x={x}
@@ -869,12 +869,12 @@ export function DashboardClient({
                 variant="ghost"
                 size="sm"
                 className="h-6 text-[10px] px-2"
-                onClick={() => router.push("/app/leads")}
+                onClick={() => router.push("/leads")}
               >
                 View All
               </Button>
             </div>
-            <CardContent className="p-0 flex-1">
+            <CardContent className="p-0 flex-1 overflow-y-auto max-h-[260px] scroll-smooth scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
               <div className="space-y-1.5">
                 {recentLeads.length === 0 ? (
                   <div className="text-xs font-light text-muted-foreground text-center py-4">
@@ -888,7 +888,7 @@ export function DashboardClient({
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.8 + index * 0.05, duration: 0.3 }}
                       className="flex items-start justify-between gap-3 p-2.5 rounded-md border border-border/50 hover:border-border hover:bg-muted/30 transition-all duration-200 group cursor-pointer"
-                      onClick={() => router.push(`/app/leads/${lead.id}`)}
+                      onClick={() => router.push(`/leads/${lead.id}`)}
                     >
                       <div className="space-y-0.5 flex-1 min-w-0">
                         <p className="text-xs font-light text-foreground group-hover:text-primary transition-colors truncate">
@@ -949,9 +949,9 @@ export function DashboardClient({
                       REVIEW: 0,
                       DONE: 0,
                     };
-                    
+
                     const totalTasks = taskStatusBreakdown.TODO + taskStatusBreakdown.IN_PROGRESS + taskStatusBreakdown.REVIEW + taskStatusBreakdown.DONE;
-                    
+
                     const chartData = totalTasks > 0 ? [
                       { name: "TODO", value: taskStatusBreakdown.TODO, fill: "#D4A574" },
                       { name: "IN_PROGRESS", value: taskStatusBreakdown.IN_PROGRESS, fill: "#6B9FB8" },
@@ -1230,8 +1230,8 @@ export function DashboardClient({
                                       {activity.user.name?.substring(0, 1).toUpperCase() || activity.user.email?.substring(0, 1).toUpperCase() || "U"}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <Badge 
-                                    variant="outline" 
+                                  <Badge
+                                    variant="outline"
                                     className="text-[8px] px-1 py-0 h-3.5"
                                   >
                                     {activity.user.name || activity.user.email?.split('@')[0] || "User"}
@@ -1282,7 +1282,7 @@ export function DashboardClient({
                   View All
                 </Button>
               </div>
-              <div className="space-y-1.5 flex-1 overflow-y-auto scroll-smooth min-h-[200px]">
+              <div className="space-y-1.5 flex-1 overflow-y-auto max-h-[260px] scroll-smooth scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
                 {safeRecentCustomers.length === 0 ? (
                   <div className="text-xs font-light text-muted-foreground text-center py-4">
                     No customers yet

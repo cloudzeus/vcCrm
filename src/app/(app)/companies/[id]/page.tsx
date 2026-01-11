@@ -24,6 +24,7 @@ export default async function CompanyDetailPage({
       id,
       organizationId: organization.id,
     },
+    // Force rebuild
     include: {
       contacts: {
         orderBy: [
@@ -98,13 +99,11 @@ export default async function CompanyDetailPage({
         updatedAt: "desc",
       },
     }),
-    // Fetch proposals for opportunities of this company
-    prisma.proposal.findMany({
+    // Fetch all proposals for this company
+    (prisma.proposal as any).findMany({
       where: {
-        crmRecord: {
-          companyId: id,
-          organizationId: organization.id,
-        },
+        companyId: id,
+        organizationId: organization.id,
       },
       include: {
         crmRecord: {
@@ -119,7 +118,7 @@ export default async function CompanyDetailPage({
       },
     }),
     // Fetch attachments for opportunities of this company (both direct, task attachments, and generic company files)
-    // Note: We'll filter companyId files in JavaScript since Prisma Client may have caching issues
+    // Note: We'll filter companyId files in JavaScript because of mixed OR conditions
     prisma.opportunityAttachment.findMany({
       where: {
         organizationId: organization.id,
@@ -136,6 +135,9 @@ export default async function CompanyDetailPage({
               },
             },
           },
+          {
+            companyId: id,
+          }
         ],
       },
       include: {
@@ -170,60 +172,6 @@ export default async function CompanyDetailPage({
       },
     }),
   ]);
-
-  // Fetch generic company files separately (files with companyId set)
-  // We filter in JavaScript since Prisma Client may not recognize companyId field yet
-  const allOrganizationAttachments = await prisma.opportunityAttachment.findMany({
-    where: {
-      organizationId: organization.id,
-    },
-    include: {
-      crmRecord: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
-      opportunityTask: {
-        select: {
-          id: true,
-          title: true,
-          crmRecord: {
-            select: {
-              id: true,
-              title: true,
-            },
-          },
-        },
-      },
-      uploader: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-      },
-    },
-  });
-
-  // Filter generic company files by companyId in JavaScript
-  const genericCompanyFiles = allOrganizationAttachments.filter((file) => file.companyId === id);
-
-  // Merge attachments from opportunities with generic company files
-  const allCompanyAttachments = [
-    ...attachments,
-    ...genericCompanyFiles.map((file) => ({
-      ...file,
-      // Ensure these are null for generic company files
-      crmRecord: file.crmRecord || null,
-      opportunityTask: file.opportunityTask || null,
-    })),
-  ];
-
-  // Remove duplicates based on file id
-  const uniqueAttachments = Array.from(
-    new Map(allCompanyAttachments.map((file) => [file.id, file])).values()
-  ).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   return (
     <CompanyDetailClient
@@ -274,7 +222,7 @@ export default async function CompanyDetailPage({
           REVIEW: 0,
           DONE: 0,
         };
-        
+
         opp.opportunityTasks.forEach((task) => {
           const taskStatus = task.status.toUpperCase();
           if (taskStatus === "TODO") {
@@ -300,17 +248,17 @@ export default async function CompanyDetailPage({
           updatedAt: opp.updatedAt.toISOString(),
         };
       })}
-      proposals={proposals.map((proposal) => ({
+      proposals={proposals.map((proposal: any) => ({
         id: proposal.id,
-        title: proposal.title || proposal.crmRecord.title,
-        version: proposal.version,
+        title: proposal.title,
+        totalAmount: proposal.totalAmount,
         status: proposal.status,
-        crmRecordId: proposal.crmRecordId,
-        crmRecordTitle: proposal.crmRecord.title,
+        crmRecordId: proposal.crmRecordId || undefined,
+        crmRecordTitle: proposal.crmRecord?.title || undefined,
         createdAt: proposal.createdAt.toISOString(),
         updatedAt: proposal.updatedAt.toISOString(),
       }))}
-      files={uniqueAttachments.map((file) => ({
+      files={attachments.map((file) => ({
         id: file.id,
         filename: file.filename,
         url: file.url,

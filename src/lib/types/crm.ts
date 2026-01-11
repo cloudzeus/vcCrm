@@ -18,9 +18,19 @@ export interface Lead {
   updatedAt: Date | string;
 }
 
+export interface Proposal {
+  id: string;
+  title: string | null;
+  totalAmount: number;
+  status: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
 export interface LeadDetail extends Lead {
   companyLogoUrl?: string;
   contacts: Contact[];
+  proposals: Proposal[];
 }
 
 export interface Contact {
@@ -31,10 +41,6 @@ export interface Contact {
   phone?: string;
   jobPosition?: string;
   role?: string;
-  companyName?: string | null;
-  supplierName?: string | null;
-  isCompanyContact?: boolean;
-  isSupplierContact?: boolean;
 }
 
 export interface LeadFormData {

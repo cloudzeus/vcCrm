@@ -70,7 +70,7 @@ interface OpportunityKanbanProps {
   tasks: OpportunityTask[];
   opportunityId?: string;
   contacts?: Array<{ id: string; name: string; email: string | null }>;
-  onTaskUpdate?: () => void;
+  onTaskUpdate?: (taskId: string, updates: any) => void;
   onAddTask?: () => void;
   onEditTask?: (task: OpportunityTask) => void;
   onDeleteTask?: (task: OpportunityTask) => void;
@@ -123,9 +123,9 @@ function TaskCard({
   };
 
   const priorityColors = {
-    0: "text-muted-foreground",
-    1: "text-[#85A3B2]",
-    2: "text-[#732553]",
+    0: "bg-gray-100 text-gray-600 border-gray-200",
+    1: "bg-[#85A3B2]/10 text-[#85A3B2] border-[#85A3B2]/20",
+    2: "bg-[#732553]/10 text-[#732553] border-[#732553]/20",
   };
 
   const taskStatusColors: Record<string, { bg: string; border: string; text: string }> = {
@@ -146,19 +146,18 @@ function TaskCard({
       variants={CARD_VARIANTS}
       initial="hidden"
       animate="visible"
-      className={`mb-0.5 cursor-move ${isDragging ? "opacity-50" : ""}`}
+      className={`mb-2 cursor-move ${isDragging ? "opacity-50" : ""}`}
       suppressHydrationWarning
     >
       <Card className={`${statusColor.bg} ${statusColor.border} border shadow-sm hover:shadow-md transition-all duration-200`}>
-        <CardContent className="p-0.5">
-          <div className="space-y-0">
-            <div className="flex items-start justify-between gap-0.5 relative">
-              <h4 className="text-xs font-light flex-1 line-clamp-1 leading-tight pr-14">{task.title}</h4>
-              <div className="absolute top-0 right-0 flex items-center gap-0.5 shrink-0 z-10">
+        <CardContent className="p-2">
+          <div className="space-y-1">
+            <div className="flex items-start justify-between gap-2 relative">
+              <h4 className="text-xs font-medium flex-1 line-clamp-2 leading-tight pr-12">{task.title}</h4>
+              <div className="absolute top-0 right-0 flex items-center gap-1 shrink-0 z-10">
                 {onEdit && (
-                  <Badge
-                    variant="outline"
-                    className="h-3.5 px-1 py-0 cursor-pointer hover:bg-[#85A3B2]/20 border-[#85A3B2]/30 text-[8px] font-light"
+                  <button
+                    className="h-4 w-4 flex items-center justify-center rounded-sm hover:bg-black/5 text-muted-foreground transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
@@ -166,15 +165,13 @@ function TaskCard({
                     }}
                     onPointerDown={(e) => e.stopPropagation()}
                     title="Edit"
-                    asChild={false}
                   >
-                    <Edit className="h-2 w-2" />
-                  </Badge>
+                    <Edit className="h-3 w-3" />
+                  </button>
                 )}
                 {onDelete && (
-                  <Badge
-                    variant="outline"
-                    className="h-3.5 px-1 py-0 cursor-pointer hover:bg-[#FF5C8D]/20 border-[#FF5C8D]/30 text-[8px] font-light"
+                  <button
+                    className="h-4 w-4 flex items-center justify-center rounded-sm hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
@@ -182,33 +179,32 @@ function TaskCard({
                     }}
                     onPointerDown={(e) => e.stopPropagation()}
                     title="Delete"
-                    asChild={false}
                   >
-                    <Trash2 className="h-2 w-2" />
-                  </Badge>
+                    <Trash2 className="h-3 w-3" />
+                  </button>
                 )}
               </div>
             </div>
             {task.assignedTo && (
-              <div className="flex items-center gap-0.5 mt-0.5">
+              <div className="flex items-center gap-1 mt-1">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-2.5 w-2.5"
+                  className="h-4 w-4"
                   onClick={(e) => {
                     e.stopPropagation();
                     onSendEmail?.(task);
                   }}
                   title="Send email"
                 >
-                  <Mail className="h-1.5 w-1.5" />
+                  <Mail className="h-3 w-3" />
                 </Button>
               </div>
             )}
             {task.question && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <p className="text-[8px] text-muted-foreground line-clamp-1 leading-tight mt-0.5 cursor-help">{task.question}</p>
+                  <p className="text-[10px] text-muted-foreground line-clamp-2 leading-tight mt-1 cursor-help">{task.question}</p>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs">
                   <p className="text-xs whitespace-pre-wrap">{task.question}</p>
@@ -216,58 +212,56 @@ function TaskCard({
               </Tooltip>
             )}
             {task.attachments && task.attachments.length > 0 && (
-              <div className="flex items-center gap-0.5 mt-0.5">
-                <Paperclip className="h-1.5 w-1.5 text-muted-foreground" />
-                <span className="text-[7px] text-muted-foreground">
+              <div className="flex items-center gap-1 mt-1">
+                <Paperclip className="h-3 w-3 text-muted-foreground" />
+                <span className="text-[10px] text-muted-foreground">
                   {task.attachments.length}
                 </span>
               </div>
             )}
             {task.answer && (
-              <div className="p-0.5 bg-muted/30 rounded text-[7px] mt-0.5">
-                <p className="font-light text-[7px]">A:</p>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <p className="text-muted-foreground text-[7px] leading-tight line-clamp-1 cursor-help">{task.answer}</p>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-xs">
-                    <p className="text-xs whitespace-pre-wrap">{task.answer}</p>
-                  </TooltipContent>
-                </Tooltip>
+              <div className="p-1 bg-white/50 rounded text-[10px] mt-1 border border-black/5">
+                <div className="flex gap-1">
+                  <span className="font-semibold text-[10px] opacity-70">A:</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className="text-muted-foreground text-[10px] leading-tight line-clamp-2 cursor-help">{task.answer}</p>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs">
+                      <p className="text-xs whitespace-pre-wrap">{task.answer}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
               </div>
             )}
-            <div className="flex items-center justify-between pt-0.5 border-t border-border/50 mt-0.5">
-              <div className="flex items-center gap-0.5">
+            <div className="flex items-center justify-between pt-2 border-t border-black/5 mt-2">
+              <div className="flex items-center gap-2">
                 {task.assignedTo && (
-                  <div className="flex items-center gap-0.5">
-                    <User className="h-1.5 w-1.5 text-muted-foreground" />
-                    <span className="text-[8px] text-muted-foreground truncate max-w-[50px]">{task.assignedTo.name}</span>
+                  <div className="flex items-center gap-1" title={task.assignedTo.name}>
+                    <User className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-[10px] text-muted-foreground truncate max-w-[60px]">{task.assignedTo.name.split(' ')[0]}</span>
                   </div>
                 )}
                 {task.dueDate && (
-                  <div className="flex items-center gap-0.5">
-                    <Clock className="h-1.5 w-1.5 text-muted-foreground" />
-                    <span className="text-[8px] text-muted-foreground">
+                  <div className="flex items-center gap-1" title={`Due: ${format(new Date(task.dueDate), "PPP")}`}>
+                    <Clock className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-[10px] text-muted-foreground">
                       {format(new Date(task.dueDate), "MMM d")}
                     </span>
                   </div>
                 )}
               </div>
-            </div>
-            <div className="flex justify-end mt-0.5">
               <Badge
                 variant="outline"
-                className={`text-[7px] font-light px-0.5 py-0 h-3 ${priorityColors[task.priority as keyof typeof priorityColors]}`}
-                icon={
-                  task.priority === 2 ? (
-                    <AlertCircle className="h-2 w-2" />
-                  ) : task.priority === 1 ? (
-                    <AlertTriangle className="h-2 w-2" />
-                  ) : (
-                    <Info className="h-2 w-2" />
-                  )
-                }
+                className={`text-[9px] px-1.5 py-0 h-4 font-normal gap-1 flex items-center ${priorityColors[task.priority as keyof typeof priorityColors] || priorityColors[0]}`}
               >
+                {task.priority === 2 ? (
+                  <AlertCircle className="h-2.5 w-2.5" />
+                ) : task.priority === 1 ? (
+                  <AlertTriangle className="h-2.5 w-2.5" />
+                ) : (
+                  <Info className="h-2.5 w-2.5" />
+                )}
                 {task.priority === 2 ? "High" : task.priority === 1 ? "Medium" : "Low"}
               </Badge>
             </div>
@@ -308,64 +302,62 @@ function KanbanColumn({
       transition={{ duration: 0.3 }}
       className="h-full"
     >
-      <Card className={`${column.bgColor} ${column.borderColor} border shadow-sm h-full flex flex-col transition-all duration-200 ${
-            isOver || overId === column.id ? "border-[#85A3B2] border-2" : ""
-          }`}>
-        <CardHeader className="p-1.5 border-b border-border/50">
+      <Card className={`${column.bgColor} ${column.borderColor} border shadow-sm h-full flex flex-col transition-all duration-200 ${isOver || overId === column.id ? "border-[#85A3B2] border-2 ring-2 ring-[#85A3B2]/20" : ""
+        }`}>
+        <CardHeader className="p-2 border-b border-black/5 bg-white/40">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-[10px] font-light uppercase tracking-wide flex items-center gap-1">
-              <CheckSquare className="h-2.5 w-2.5" />
+            <CardTitle className="text-[11px] font-medium uppercase tracking-wide flex items-center gap-2 text-foreground/80">
+              <CheckSquare className="h-3 w-3 opacity-70" />
               {column.label}
             </CardTitle>
             <div className="flex items-center gap-1">
-              <Badge variant="outline" className="text-[9px] font-light h-4 px-1">
+              <Badge variant="secondary" className="text-[9px] font-medium h-4 px-1 min-w-[1.25rem] justify-center bg-black/5 text-black/70 hover:bg-black/10">
                 {tasks.length}
               </Badge>
               {column.id === "TODO" && onAddTask && (
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-4 w-4"
+                  className="h-5 w-5 hover:bg-black/5 rounded-sm"
                   onClick={(e) => {
                     e.stopPropagation();
                     onAddTask();
                   }}
                   title="Add Task"
                 >
-                  <Plus className="h-2 w-2" />
+                  <Plus className="h-3 w-3" />
                 </Button>
               )}
             </div>
           </div>
         </CardHeader>
-        <CardContent 
-          className={`p-1 flex-1 overflow-y-auto min-h-[400px] transition-all duration-200 ${
-            isOver || overId === column.id 
-              ? "ring-4 ring-[#85A3B2] ring-offset-2 bg-[#85A3B2]/20 border-2 border-[#85A3B2] scale-[1.02] shadow-lg" 
-              : ""
-          }`}
+        <CardContent
+          className={`p-2 flex-1 overflow-y-auto min-h-[400px] transition-all duration-200`}
         >
-          <div className="h-full">
+          <div className="h-full flex flex-col">
             <SortableContext
               items={tasks.map((t) => t.id)}
               strategy={verticalListSortingStrategy}
             >
-            <AnimatePresence>
-              {tasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onSendEmail={onSendEmail}
-                  onEdit={onEditTask}
-                  onDelete={onDeleteTask}
-                />
-              ))}
-            </AnimatePresence>
-            {tasks.length === 0 && (
-              <div className="text-center py-4 text-muted-foreground text-[9px] font-light">
-                No tasks
-              </div>
-            )}
+              <AnimatePresence>
+                {tasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onSendEmail={onSendEmail}
+                    onEdit={onEditTask}
+                    onDelete={onDeleteTask}
+                  />
+                ))}
+              </AnimatePresence>
+              {tasks.length === 0 && (
+                <div className="flex-1 flex flex-col items-center justify-center text-center py-8 text-black/30">
+                  <div className="rounded-full bg-black/5 p-3 mb-2">
+                    <CheckSquare className="h-5 w-5 opacity-50" />
+                  </div>
+                  <p className="text-[10px] font-medium">No tasks</p>
+                </div>
+              )}
             </SortableContext>
           </div>
         </CardContent>
@@ -407,21 +399,34 @@ export function OpportunityKanban({
     TODO: localTasks.filter((t) => t.status === "TODO").sort((a, b) => {
       const aOrder = (a as any).order || 0;
       const bOrder = (b as any).order || 0;
+      // Also fallback to createdAt if order is same
+      if (aOrder === bOrder) {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      }
       return aOrder - bOrder;
     }),
     IN_PROGRESS: localTasks.filter((t) => t.status === "IN_PROGRESS").sort((a, b) => {
       const aOrder = (a as any).order || 0;
       const bOrder = (b as any).order || 0;
+      if (aOrder === bOrder) {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      }
       return aOrder - bOrder;
     }),
     REVIEW: localTasks.filter((t) => t.status === "REVIEW").sort((a, b) => {
       const aOrder = (a as any).order || 0;
       const bOrder = (b as any).order || 0;
+      if (aOrder === bOrder) {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      }
       return aOrder - bOrder;
     }),
     DONE: localTasks.filter((t) => t.status === "DONE").sort((a, b) => {
       const aOrder = (a as any).order || 0;
       const bOrder = (b as any).order || 0;
+      if (aOrder === bOrder) {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      }
       return aOrder - bOrder;
     }),
   };
@@ -433,11 +438,16 @@ export function OpportunityKanban({
   };
 
   const handleDragOver = (event: DragOverEvent) => {
-    if (event.over) {
-      setOverId(event.over.id as string);
-    } else {
+    const { active, over } = event;
+    if (!over) {
       setOverId(null);
+      return;
     }
+
+    setOverId(over.id as string);
+
+    // If we're dragging over a DIFFERENT column, we might want to optimistically move the item in the UI list
+    // This is optional but makes it smoother. For now we stick to simple visual feedback.
   };
 
   const handleDragCancel = () => {
@@ -455,67 +465,63 @@ export function OpportunityKanban({
     if (!over || !active) return;
 
     const taskId = String(active.id);
-    if (!taskId || taskId === "undefined") {
-      console.error("Invalid task ID:", active.id);
-      toast.error("Invalid task ID");
-      return;
-    }
+    const task = localTasks.find((t) => t.id === taskId);
+    if (!task) return;
 
-    const task = tasks.find((t) => t.id === taskId);
-    if (!task) {
-      console.error("Task not found:", taskId);
-      toast.error("Task not found");
-      return;
-    }
-
-    // Get the CRM record ID - use opportunityId prop if provided, otherwise get from task
+    // Get the CRM record ID
     const crmRecordId = opportunityId || task.crmRecordId;
-    if (!crmRecordId || crmRecordId === "undefined") {
-      console.error("Invalid CRM record ID:", { opportunityId, crmRecordId: task.crmRecordId });
+    if (!crmRecordId) {
       toast.error("Unable to determine opportunity ID");
       return;
     }
 
     let newStatus: TaskStatus | null = null;
+    let newOrder = 0;
 
-    // Check if over.id is a valid TaskStatus (column) - this is the primary case
     const validStatuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "REVIEW", "DONE"];
+
+    // Determining New Status and potentially New Order
     if (validStatuses.includes(over.id as TaskStatus)) {
       // Dropped directly on a column
       newStatus = over.id as TaskStatus;
+      // Append to end of list
+      newOrder = tasksByStatus[newStatus].length;
     } else {
-      // If over.id is a task ID, we need to find which column contains it
-      const overTask = tasks.find((t) => t.id === over.id);
+      // Dropped on another task
+      const overTask = localTasks.find((t) => t.id === over.id);
       if (overTask) {
-        // Dropped on another task - use that task's status
         newStatus = overTask.status;
+        // Logic to insert before/after could be complex, for now we just take the status
+        // If strict ordering is needed, we'd calculate index. 
+        // For simplicity let's assume we just want to change status. 
+        // If status is same, we might just be reordering (which we can support later).
       } else {
-        // Unknown drop target - try to find the column from the droppable context
-        // Check all columns to see which one contains this drop
+        // Try to infer status from proximity if DND kit didn't give us a direct hit
         for (const status of validStatuses) {
+          // This is a fallback
           const tasksInColumn = tasksByStatus[status];
-          if (tasksInColumn.some(t => t.id === over.id)) {
-            newStatus = status;
-            break;
-          }
+          // If the over id is the sortable context id of a column? No.
+          // Usually DND kit handles this with containers.
         }
-        if (!newStatus) return;
       }
     }
 
-    if (!newStatus || task.status === newStatus) return;
+    if (!newStatus) return;
 
-    // Final validation before API call
-    if (!taskId || !crmRecordId || taskId === "undefined" || crmRecordId === "undefined") {
-      console.error("Invalid IDs for API call:", { taskId, crmRecordId });
-      toast.error("Invalid task or opportunity ID");
-      return;
-    }
+    // Optimistically Update Local State
+    const previousTasks = [...localTasks];
 
+    // Update the task in local state immediately
+    const updatedTask = { ...task, status: newStatus, order: newOrder };
+    const newLocalTasks = localTasks.map(t =>
+      t.id === taskId ? updatedTask : t
+    );
+    setLocalTasks(newLocalTasks); // Force re-render with new status immediately
+
+    // Now perform API update
     try {
-      // Get all tasks in the new status to calculate order
-      const tasksInNewStatus = tasksByStatus[newStatus] || [];
-      const newOrder = tasksInNewStatus.length;
+      // If we provided a callback, use it for parent updates (optional)
+      onTaskUpdate?.(taskId, { status: newStatus, order: newOrder });
 
       const response = await fetch(`/api/opportunities/${crmRecordId}/tasks/${taskId}`, {
         method: "PUT",
@@ -529,15 +535,17 @@ export function OpportunityKanban({
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to update task");
+        throw new Error("Failed to update task");
       }
 
-      toast.success("Task updated successfully");
+      // Success - no need to do anything as local state is already updated.
+      // Ideally router.refresh() will come and sync eventually, but we don't want it to flicker back.
       router.refresh();
-      onTaskUpdate?.();
+
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update task");
+      // Revert optimization on error
+      setLocalTasks(previousTasks);
+      toast.error("Failed to update task status");
     }
   };
 
@@ -547,31 +555,24 @@ export function OpportunityKanban({
       return;
     }
 
-    // Get the CRM record ID - use opportunityId prop if provided, otherwise get from task
     const crmRecordId = opportunityId || task.crmRecordId;
-    if (!crmRecordId) {
-      toast.error("Unable to determine opportunity ID");
-      return;
-    }
+    if (!crmRecordId) return;
 
     try {
       const response = await fetch(`/api/opportunities/${crmRecordId}/tasks/${task.id}/send-email`, {
         method: "POST",
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to send email");
-      }
+      if (!response.ok) throw new Error("Failed to send email");
 
       toast.success("Email sent successfully");
       router.refresh();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to send email");
+      toast.error("Failed to send email");
     }
   };
 
-  if (!tasks || tasks.length === 0) {
+  if (!localTasks || localTasks.length === 0) {
     return (
       <div className="text-center py-12">
         <CheckSquare className="h-8 w-8 text-muted-foreground/30 mx-auto mb-3" />

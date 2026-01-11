@@ -5,8 +5,8 @@ import { getCurrentUserOrThrow, getOrganizationOrThrow } from "@/lib/auth-helper
 import { DashboardClient } from "@/components/dashboard/dashboard-client";
 import { startOfWeek, endOfWeek, addWeeks, isAfter } from "date-fns";
 
-// Server-side caching: revalidate every 1 hour (3600 seconds)
-export const revalidate = 3600;
+// Server-side caching: No caching for real-time dashboard data
+export const revalidate = 0;
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -61,10 +61,10 @@ export default async function DashboardPage() {
     recentLeads,
     recentOpportunities,
     recentTasks,
+    rawTaskStatusData,
     recentCustomers,
     recentSuppliers,
     recentContacts,
-    allTasksForStatus,
     recentUsers,
   ] = await Promise.all([
     // Active campaigns count
@@ -228,7 +228,10 @@ export default async function DashboardPage() {
     prisma.crmRecord.findMany({
       where: {
         organizationId: organization.id,
-        status: "LEAD",
+        // status: "LEAD", // Show all recent CRM records to avoid empty state confusion
+        status: {
+          notIn: ["WON", "LOST", "CUSTOMER"]
+        },
       },
       include: {
         company: {
@@ -302,10 +305,13 @@ export default async function DashboardPage() {
       },
       // No limit - get all tasks for accurate counting
     }),
-    // Recent customers - fetch first 4 Company records (filter empty names in JavaScript)
+    // Recent customers - fetch first 4 Company records (filter empty names)
     prisma.company.findMany({
       where: {
         organizationId: organization.id,
+        name: {
+          not: "",
+        },
       },
       select: {
         id: true,
@@ -618,7 +624,6 @@ export default async function DashboardPage() {
         description: task.description,
       }))}
       recentCustomers={(recentCustomers || [])
-        .filter((customer: any) => customer.name && customer.name.trim() !== "")
         .map((customer: any) => ({
           id: customer.id,
           name: customer.name,
@@ -648,7 +653,7 @@ export default async function DashboardPage() {
         createdAt: contact.createdAt,
       }))}
       taskStatusData={(() => {
-        // Count tasks by status - use recentTasks since we know it works
+        // Count tasks by status - use rawTaskStatusData which has all tasks
         const statusMap: Record<string, number> = {
           TODO: 0,
           IN_PROGRESS: 0,
@@ -656,12 +661,9 @@ export default async function DashboardPage() {
           DONE: 0,
         };
 
-        // Use recentTasks which we know has data, or allTasksForStatus if available
-        const tasksToCount = (recentTasks && recentTasks.length > 0)
-          ? recentTasks.map((t: any) => ({ status: t.status }))
-          : (allTasksForStatus || []);
+        const tasksToCount = rawTaskStatusData || [];
 
-        (tasksToCount || []).forEach((task: any) => {
+        tasksToCount.forEach((task: any) => {
           // Get status value - handle both string and enum
           const rawStatus = task.status;
           const status = String(rawStatus || '').toUpperCase().trim();

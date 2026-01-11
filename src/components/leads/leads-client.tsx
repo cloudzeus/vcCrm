@@ -9,6 +9,7 @@ import { DataTable, ColumnDef } from "@/components/ui/data-table";
 import { Badge } from "@/components/ui/badge";
 import { LeadFormModal } from "@/components/forms/lead-form-modal";
 import { AIQuestionsModal } from "@/components/forms/ai-questions-modal";
+import { ProposalModal } from "@/components/forms/proposal-modal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -50,15 +51,17 @@ export function LeadsClient({ initialLeads, companies, currentUserId, currentUse
   const [isAIQuestionsModalOpen, setIsAIQuestionsModalOpen] = useState(false);
   const [selectedLeadForAI, setSelectedLeadForAI] = useState<Lead | null>(null);
   const [leadContacts, setLeadContacts] = useState<Array<{ id: string; name: string; lastName?: string; email?: string }>>([]);
+  const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
+  const [selectedLeadForProposal, setSelectedLeadForProposal] = useState<Lead | null>(null);
 
   const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
       lead.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       lead.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (lead.description && lead.description.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+
     const matchesStatus = statusFilter === "all" || lead.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -79,13 +82,12 @@ export function LeadsClient({ initialLeads, companies, currentUserId, currentUse
         throw new Error("Failed to fetch lead details");
       }
       const leadData = await response.json();
-      
+
       setLeadContacts(
         leadData.contacts?.map((c: any) => ({
           id: c.id,
           name: c.name,
           lastName: c.lastName,
-          email: c.email,
         })) || []
       );
       setSelectedLeadForAI(lead);
@@ -93,6 +95,11 @@ export function LeadsClient({ initialLeads, companies, currentUserId, currentUse
     } catch (error) {
       toast.error("Failed to load lead details");
     }
+  };
+
+  const handleCreateProposal = (lead: Lead) => {
+    setSelectedLeadForProposal(lead);
+    setIsProposalModalOpen(true);
   };
 
   const handleEdit = (lead: Lead) => {
@@ -162,16 +169,16 @@ export function LeadsClient({ initialLeads, companies, currentUserId, currentUse
       }
 
       toast.success(editingLead ? "Lead updated" : "Lead created");
-      
+
       // If status is OPPORTUNITY, don't close modal yet - let the form handle it
       if (data.status === "OPPORTUNITY") {
         // Return the result so the form can use the ID
         return result;
       }
-      
+
       setIsModalOpen(false);
       setEditingLead(null);
-      
+
       // Refresh to ensure server state is synced
       router.refresh();
     } catch (error) {
@@ -199,7 +206,7 @@ export function LeadsClient({ initialLeads, companies, currentUserId, currentUse
         const lead = row.original;
         const truncatedDescription = lead.description ? truncateText(lead.description, 80) : "";
         const hasFullDescription = lead.description && lead.description.length > 80;
-        
+
         return (
           <div className="space-y-0.5">
             <span className="font-light text-xs text-foreground">{lead.title}</span>
@@ -231,7 +238,7 @@ export function LeadsClient({ initialLeads, companies, currentUserId, currentUse
         const truncatedCompany = truncateText(lead.companyName, 30);
         const hasFullCompany = lead.companyName.length > 30;
         const companyDetails = (lead as any).companyDetails;
-        
+
         return (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -436,6 +443,11 @@ export function LeadsClient({ initialLeads, companies, currentUserId, currentUse
                 onClick: handleGenerateQuestions,
               },
               {
+                label: "Create Proposal",
+                value: "create-proposal",
+                onClick: handleCreateProposal,
+              },
+              {
                 label: "Delete",
                 value: "delete",
                 onClick: handleDelete,
@@ -459,8 +471,8 @@ export function LeadsClient({ initialLeads, companies, currentUserId, currentUse
           valueEstimate: editingLead.valueEstimate,
           expectedClose: editingLead.expectedClose
             ? (typeof editingLead.expectedClose === "string"
-                ? editingLead.expectedClose.split("T")[0]
-                : editingLead.expectedClose.toISOString().split("T")[0])
+              ? editingLead.expectedClose.split("T")[0]
+              : editingLead.expectedClose.toISOString().split("T")[0])
             : undefined,
           outcome: editingLead.outcome,
         } : undefined}
@@ -484,6 +496,22 @@ export function LeadsClient({ initialLeads, companies, currentUserId, currentUse
             router.refresh();
             setSelectedLeadForAI(null);
             setLeadContacts([]);
+          }}
+        />
+      )}
+
+      {selectedLeadForProposal && (
+        <ProposalModal
+          open={isProposalModalOpen}
+          onOpenChange={(open) => {
+            setIsProposalModalOpen(open);
+            if (!open) setSelectedLeadForProposal(null);
+          }}
+          companyId={selectedLeadForProposal.companyId}
+          crmRecordId={selectedLeadForProposal.id}
+          onSuccess={() => {
+            router.refresh();
+            toast.success("Proposal created successfully");
           }}
         />
       )}

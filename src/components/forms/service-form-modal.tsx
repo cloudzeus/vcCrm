@@ -153,7 +153,7 @@ export function ServiceFormModal({
                                     <FormItem>
                                         <FormLabel>Price (Optional)</FormLabel>
                                         <FormControl>
-                                            <Input type="number" step="0.01" placeholder="0.00" {...field} />
+                                            <Input type="number" step="0.01" placeholder="0.00" {...field} value={(field.value as string | number) ?? ""} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

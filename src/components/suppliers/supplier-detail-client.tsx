@@ -152,8 +152,8 @@ interface SupplierDetailClientProps {
   files?: FileAttachment[];
 }
 
-export function SupplierDetailClient({ 
-  supplier, 
+export function SupplierDetailClient({
+  supplier,
   allSuppliers,
   leads = [],
   opportunities = [],
@@ -582,9 +582,9 @@ export function SupplierDetailClient({
                           REVIEW: 0,
                           DONE: 0,
                         };
-                        
+
                         const totalTasks = taskStatusBreakdown.TODO + taskStatusBreakdown.IN_PROGRESS + taskStatusBreakdown.REVIEW + taskStatusBreakdown.DONE;
-                        
+
                         const chartData = totalTasks > 0 ? [
                           { name: "TODO", value: taskStatusBreakdown.TODO, fill: "#D4A574" },
                           { name: "IN_PROGRESS", value: taskStatusBreakdown.IN_PROGRESS, fill: "#6B9FB8" },
@@ -868,11 +868,11 @@ export function SupplierDetailClient({
         onOpenChange={setIsContactModalOpen}
         onSubmit={async (data) => {
           try {
-            const url = editingContact 
+            const url = editingContact
               ? `/api/contacts/${editingContact.id}`
               : '/api/contacts';
             const method = editingContact ? 'PUT' : 'POST';
-            
+
             const contactData = {
               ...data,
               supplierId: supplier.id, // Always set to current supplier
@@ -899,7 +899,6 @@ export function SupplierDetailClient({
           }
         }}
         initialData={editingContact ? {
-          id: editingContact.id,
           name: editingContact.name,
           lastName: editingContact.lastName,
           supplierId: supplier.id,
@@ -1043,7 +1042,7 @@ export function SupplierDetailClient({
 
                   setUploadingFile(true);
                   setUploadProgress(0);
-                  
+
                   try {
                     // Simulate progress
                     const progressInterval = setInterval(() => {
@@ -1094,10 +1093,10 @@ export function SupplierDetailClient({
                   !selectedFile && !selectedOpportunityId
                     ? "Please select a file and an opportunity/lead"
                     : !selectedFile
-                    ? "Please select a file"
-                    : !selectedOpportunityId
-                    ? "Please select an opportunity or lead"
-                    : ""
+                      ? "Please select a file"
+                      : !selectedOpportunityId
+                        ? "Please select an opportunity or lead"
+                        : ""
                 }
               >
                 {uploadingFile ? (

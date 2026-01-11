@@ -6,11 +6,11 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install dependencies
-RUN npm ci --legacy-peer-deps
-
 # Copy Prisma schema
 COPY prisma ./prisma
+
+# Install dependencies
+RUN npm ci --legacy-peer-deps
 
 # Generate Prisma Client
 RUN npx prisma generate
@@ -31,11 +31,13 @@ ENV NODE_ENV=production
 # Copy package files for production dependencies
 COPY package.json package-lock.json* ./
 
+# Copy Prisma schema
+COPY prisma ./prisma
+
 # Install production dependencies only
 RUN npm ci --legacy-peer-deps --omit=dev && npm cache clean --force
 
-# Copy Prisma schema and generated client
-COPY prisma ./prisma
+# Copy generated Prisma Client
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Copy built application from standalone output

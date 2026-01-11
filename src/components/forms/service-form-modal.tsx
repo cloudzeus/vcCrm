@@ -52,7 +52,7 @@ export function ServiceFormModal({
 }: ServiceFormModalProps) {
     const [loading, setLoading] = useState(false);
 
-    const form = useForm<ServiceFormValues>({
+    const form = useForm({
         resolver: zodResolver(serviceSchema),
         defaultValues: {
             code: "",
